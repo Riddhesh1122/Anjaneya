@@ -1,45 +1,32 @@
 const express = require('express');
-const path = require('path');
-const mongoose = require('mongoose');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const cors = require('cors');
+const morgan = require('morgan');
+const connectDB = require('./config/db');
 
-const app = express();
-app.use(express.json());
-
-// Validate environment variables
-function validateEnv() {
-	const mongo = process.env.MONGO_URI;
-	if (!mongo) {
-		console.error('\nERROR: MONGO_URI is not set.\nSet MONGO_URI in event-management-hackathon/.env (or in environment) to a valid MongoDB Atlas connection string.');
-		process.exit(1);
-	}
-	const mongoPattern = /^mongodb(?:\+srv)?:\/\/.+/i;
-	if (!mongoPattern.test(mongo)) {
-		console.error('\nERROR: MONGO_URI does not appear to be a valid MongoDB URI.\nExpected format: mongodb://... or mongodb+srv://...');
-		process.exit(1);
-	}
-	if (!process.env.JWT_SECRET) {
-		console.warn('\nWARNING: JWT_SECRET is not set. Set a secure JWT_SECRET in .env before enabling authentication.');
-	}
-}
-
-validateEnv();
+// Load environment variables
+dotenv.config();
 
 // Connect to MongoDB
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/event-management-hackathon';
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-	.then(() => console.log('Connected to MongoDB'))
-	.catch(err => console.error('MongoDB connection error:', err));
+connectDB();
 
-// Serve static frontend
-app.use(express.static(path.join(__dirname, '../public')));
+const app = express();
 
-// Simple API placeholder
-app.get('/api/ping', (req, res) => res.json({ ok: true, time: Date.now() }));
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(morgan('dev'));
 
-// Mount routes: users, events, registrations
-const apiRouter = require('./routes');
-app.use('/api', apiRouter);
+// Simple test route
+app.get('/', (req, res) => {
+	res.json({ 
+		message: 'Event Management API is running successfully!' 
+	});
+});
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));
+// Start server
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+	console.log(`Server running on http://localhost:${PORT}`);
+});
