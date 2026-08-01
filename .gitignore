@@ -1,0 +1,9 @@
+# Repo-level ignores
+node_modules/
+*.log
+.env
+**/.env
+dist/
+data.db
+.DS_Store
+/.vscode/
