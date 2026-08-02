@@ -1,3 +1,6 @@
+import { BaseEntity } from './Common';
+import { Role } from './Role';
+
 export type EventItem = {
   _id?: string
   id: string
@@ -22,4 +25,21 @@ export type EventItem = {
     email: string
     college?: string
   }
+}
+
+export type EventStatus = 'draft' | 'published' | 'cancelled';
+
+export interface Event extends BaseEntity {
+  title: string;
+  description: string;
+  category: string;
+  bannerImage: string;
+  organizerId: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  venue: string;
+  capacity: number;
+  registeredCount: number;
+  status: EventStatus;
 }
