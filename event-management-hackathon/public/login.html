@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EventHub | Login</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="login-page">
+    <div class="orb orb-one"></div>
+    <div class="orb orb-two"></div>
+    <div class="orb orb-three"></div>
+
+    <header class="auth-header">
+      <div class="container auth-nav">
+        <a class="brand" href="index.html">EventHub</a>
+        <a class="back-link" href="index.html">← Back home</a>
+      </div>
+    </header>
+
+    <main class="auth-shell">
+      <section class="auth-card" aria-labelledby="login-title">
+        <div class="auth-intro">
+          <p class="eyebrow">Welcome back</p>
+          <h1 id="login-title">Sign in to your account</h1>
+          <p>Organize events, welcome attendees, and keep your schedule in sync.</p>
+        </div>
+
+        <form class="auth-form">
+          <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="Enter your password" required />
+          </div>
+
+          <div class="form-row">
+            <label class="checkbox-row">
+              <input type="checkbox" />
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="inline-link">Forgot password?</a>
+          </div>
+
+          <button class="auth-btn" type="submit">Log in</button>
+        </form>
+
+        <p class="switch-text">
+          New here?
+          <a href="index.html" class="inline-link">Create an account</a>
+        </p>
+      </section>
+    </main>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
