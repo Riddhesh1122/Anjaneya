@@ -1,11 +1,11 @@
-import axios, { AxiosResponse } from 'axios';
+import { apiClient, unwrapApiResponse, getApiErrorMessage } from './apiClient';
 
 export type Volunteer = {
   id: string;
   name: string;
   role?: string;
   skills: string[];
-  availability: string; // e.g., 'Weekends', 'Weekdays'
+  availability: string;
   assignedEvent?: string;
   completionPercent: number;
   email?: string;
@@ -27,138 +27,105 @@ export type Task = {
   notes?: string;
 };
 
-// In-memory mock store
-let volunteers: Volunteer[] = [
-  {
-    id: 'v1',
-    name: 'Priya Sharma',
-    role: 'Volunteer',
-    skills: ['Logistics', 'First Aid'],
-    availability: 'Weekends',
-    assignedEvent: 'Tech Meetup',
-    completionPercent: 78,
-    email: 'priya@example.com',
-    phone: '+91 98765 43210',
-    avatar: 'https://i.pravatar.cc/150?img=32',
-    experience: '2 years volunteering with local NGOs',
-    certificates: ['First Aid Certificate']
-  },
-  {
-    id: 'v2',
-    name: 'Ravi Kumar',
-    role: 'Coordinator',
-    skills: ['Coordination', 'Crowd Management'],
-    availability: 'Weekdays',
-    assignedEvent: 'Music Fest',
-    completionPercent: 92,
-    email: 'ravi@example.com',
-    phone: '+91 91234 56789',
-    avatar: 'https://i.pravatar.cc/150?img=12',
-    experience: '3 years event coordination',
-    certificates: []
-  },
-  {
-    id: 'v3',
-    name: 'Anjali Rao',
-    role: 'Volunteer',
-    skills: ['Marketing', 'Photos'],
-    availability: 'Weekends',
-    assignedEvent: '',
-    completionPercent: 45,
-    email: 'anjali@example.com',
-    phone: '+91 99876 54321',
-    avatar: 'https://i.pravatar.cc/150?img=45',
-    experience: 'Freelance photographer',
-    certificates: ['Photography Basics']
-  }
-];
+const toVolunteer = (volunteer: any): Volunteer => ({
+  id: volunteer.id || volunteer._id,
+  name: volunteer.name || 'Volunteer',
+  role: volunteer.role || 'volunteer',
+  skills: volunteer.skills || ['Support'],
+  availability: volunteer.availability || 'Flexible',
+  assignedEvent: volunteer.assignedEvent || '',
+  completionPercent: volunteer.completionPercent || 70,
+  email: volunteer.email,
+  phone: volunteer.phone,
+  avatar: volunteer.avatar,
+  experience: volunteer.experience,
+  certificates: volunteer.certificates,
+});
 
-let tasks: Task[] = [
-  {
-    id: 't1',
-    title: 'Set up stage',
-    description: 'Assemble and test sound/lighting',
-    volunteerId: 'v2',
-    priority: 'High',
-    dueDate: new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString(),
-    event: 'Music Fest',
-    status: 'In Progress',
-    notes: ''
-  },
-  {
-    id: 't2',
-    title: 'Ticket counter',
-    description: 'Manage ticketing and entry',
-    volunteerId: 'v1',
-    priority: 'Medium',
-    dueDate: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
-    event: 'Tech Meetup',
-    status: 'Pending',
-    notes: ''
-  },
-  {
-    id: 't3',
-    title: 'Social media updates',
-    description: 'Post live updates during event',
-    volunteerId: null,
-    priority: 'Low',
-    dueDate: new Date(Date.now() + 2 * 24 * 3600 * 1000).toISOString(),
-    event: 'Tech Meetup',
-    status: 'Pending',
-    notes: ''
-  }
-];
-
-// Simulate network delay
-const wait = (ms = 500) => new Promise((res) => setTimeout(res, ms));
+const toTask = (task: any): Task => ({
+  id: task.id || task._id,
+  title: task.title,
+  description: task.description || '',
+  volunteerId: task.volunteerId || null,
+  priority: task.priority || 'Medium',
+  dueDate: task.dueDate || '',
+  event: task.event || '',
+  status: task.status || 'Pending',
+  notes: task.notes || '',
+});
 
 export async function getVolunteers(): Promise<Volunteer[]> {
-  await wait(400);
-  return [...volunteers];
+  try {
+    const response = await apiClient.get('/volunteers');
+    const payload = unwrapApiResponse<any[]>(response.data);
+    return (Array.isArray(payload) ? payload : []).map(toVolunteer);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Failed to load volunteers'));
+  }
 }
 
 export async function getVolunteer(id: string): Promise<Volunteer | null> {
-  await wait(300);
-  const v = volunteers.find((x) => x.id === id) || null;
-  return v;
+  try {
+    const response = await apiClient.get(`/volunteers/${id}`);
+    const payload = unwrapApiResponse<any>(response.data);
+    return payload ? toVolunteer(payload) : null;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Failed to load volunteer'));
+  }
 }
 
 export async function getTasks(): Promise<Task[]> {
-  await wait(400);
-  return [...tasks];
+  try {
+    const response = await apiClient.get('/tasks');
+    const payload = unwrapApiResponse<any[]>(response.data);
+    return (Array.isArray(payload) ? payload : []).map(toTask);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Failed to load tasks'));
+  }
 }
 
 export async function createTask(payload: Omit<Task, 'id'>): Promise<Task> {
-  await wait(400);
-  const newTask: Task = { id: `t${Date.now()}`, ...payload } as Task;
-  tasks.push(newTask);
-  return newTask;
+  try {
+    const response = await apiClient.post('/tasks', {
+      title: payload.title,
+      description: payload.description,
+      volunteerId: payload.volunteerId || null,
+      priority: payload.priority,
+      dueDate: payload.dueDate,
+      event: payload.event,
+      status: payload.status,
+      notes: payload.notes,
+    });
+    const taskPayload = unwrapApiResponse<any>(response.data);
+    return toTask(taskPayload);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Failed to create task'));
+  }
 }
 
 export async function updateTask(id: string, patch: Partial<Task>): Promise<Task | null> {
-  await wait(300);
-  const idx = tasks.findIndex((t) => t.id === id);
-  if (idx === -1) return null;
-  tasks[idx] = { ...tasks[idx], ...patch };
-  return tasks[idx];
+  try {
+    const response = await apiClient.put(`/tasks/${id}`, patch);
+    const payload = unwrapApiResponse<any>(response.data);
+    return payload ? toTask(payload) : null;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Failed to update task'));
+  }
 }
 
 export async function deleteTask(id: string): Promise<boolean> {
-  await wait(200);
-  const before = tasks.length;
-  tasks = tasks.filter((t) => t.id !== id);
-  return tasks.length < before;
+  try {
+    await apiClient.delete(`/tasks/${id}`);
+    return true;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Failed to delete task'));
+  }
 }
 
 export async function assignVolunteer(taskId: string, volunteerId: string | null): Promise<Task | null> {
-  await wait(250);
-  const t = tasks.find((x) => x.id === taskId);
-  if (!t) return null;
-  t.volunteerId = volunteerId;
-  return t;
+  return updateTask(taskId, { volunteerId });
 }
 
-// Export default for potential axios-like usage
 export default {
   getVolunteers,
   getVolunteer,
@@ -166,5 +133,5 @@ export default {
   createTask,
   updateTask,
   deleteTask,
-  assignVolunteer
+  assignVolunteer,
 };

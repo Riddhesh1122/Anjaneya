@@ -1,20 +1,13 @@
 const express = require('express');
 const protect = require('../middleware/auth.middleware');
-const authorize = require('../middleware/role.middleware');
-const { ROLES } = require('../constants');
+const { taskController } = require('../controllers');
 
-// Placeholder router for task‑related endpoints.
-// Real task creation / update will replace this later.
 const router = express.Router();
 
-// Simple protected test route.
-router.get(
-  '/test',
-  protect,
-  authorize(ROLES.VOLUNTEER),
-  (req, res) => {
-    res.json({ message: 'Task route works' });
-  }
-);
+router.get('/', protect, taskController.getTasks);
+router.get('/:id', protect, taskController.getTaskById);
+router.post('/', protect, taskController.createTask);
+router.put('/:id', protect, taskController.updateTask);
+router.delete('/:id', protect, taskController.deleteTask);
 
 module.exports = router;

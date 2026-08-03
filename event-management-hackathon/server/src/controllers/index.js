@@ -3,6 +3,8 @@ const registrationController = require('./registration.controller');
 const eventController = require('./event.controller');
 const bookingController = require('./booking.controller');
 const authController = require('./auth.controller');
+const volunteerController = require('./volunteer.controller');
+const taskController = require('./task.controller');
 
 module.exports = {
   userController,
@@ -10,4 +12,6 @@ module.exports = {
   bookingController,
   registrationController,
   authController,
+  volunteerController,
+  taskController,
 };

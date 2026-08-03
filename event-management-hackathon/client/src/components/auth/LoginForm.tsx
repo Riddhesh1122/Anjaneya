@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
-import { loginWithPlaceholderApi, LoginCredentials } from '../../services/authApi';
+import { loginWithApi, type LoginCredentials } from '../../services/authApi';
 
 interface LoginFormProps {
   onSubmitSuccess?: () => void;
@@ -30,7 +30,7 @@ export const LoginForm = ({ onSubmitSuccess }: LoginFormProps) => {
     setIsSubmitting(true);
 
     try {
-      await loginWithPlaceholderApi(data);
+      await loginWithApi(data);
       if (onSubmitSuccess) {
         onSubmitSuccess();
       }

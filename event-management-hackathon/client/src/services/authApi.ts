@@ -1,44 +1,58 @@
-import axios, { AxiosResponse } from 'axios';
+import { apiClient, unwrapApiResponse, getApiErrorMessage } from './apiClient';
 
 export interface LoginCredentials {
   email: string;
   password: string;
-  rememberMe: boolean;
+  rememberMe?: boolean;
+}
+
+export interface AuthUser {
+  _id?: string;
+  id?: string;
+  name?: string;
+  email: string;
+  role?: string;
+  college?: string;
 }
 
 export interface LoginResponse {
-  success: boolean;
-  message: string;
-  user: {
-    email: string;
-  };
+  token: string;
+  user: AuthUser;
 }
 
-const placeholderClient = axios.create({
-  adapter: async (config) => {
-    const payload = typeof config.data === 'string' ? JSON.parse(config.data) : config.data;
+export async function loginWithApi(credentials: LoginCredentials): Promise<LoginResponse> {
+  try {
+    const response = await apiClient.post('/auth/login', credentials);
+    const payload = unwrapApiResponse<LoginResponse>(response.data);
+    if (payload?.token) {
+      localStorage.setItem('token', payload.token);
+      localStorage.setItem('user', JSON.stringify(payload.user));
+    }
+    return payload;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Login failed'));
+  }
+}
 
-    const response: AxiosResponse<LoginResponse> = {
-      data: {
-        success: true,
-        message: 'Login successful',
-        user: {
-          email: payload?.email ?? '',
-        },
-      },
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-      config,
-    };
+export async function registerWithApi(userData: { name?: string; email: string; password: string; college?: string; role?: string }) {
+  try {
+    const response = await apiClient.post('/auth/signup', userData);
+    const payload = unwrapApiResponse<LoginResponse>(response.data);
+    if (payload?.token) {
+      localStorage.setItem('token', payload.token);
+      localStorage.setItem('user', JSON.stringify(payload.user));
+    }
+    return payload;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Registration failed'));
+  }
+}
 
-    return response;
-  },
-});
-
-export const loginWithPlaceholderApi = async (
-  credentials: LoginCredentials,
-): Promise<LoginResponse> => {
-  const response = await placeholderClient.post<LoginResponse>('/placeholder-login', credentials);
-  return response.data;
-};
+export async function getCurrentUser() {
+  try {
+    const response = await apiClient.get('/auth/me');
+    return unwrapApiResponse<AuthUser>(response.data);
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, 'Failed to load profile'));
+  }
+}

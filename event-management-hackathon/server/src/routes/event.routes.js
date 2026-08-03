@@ -14,7 +14,9 @@ const { ROLES } = require('../constants');
 const router = express.Router();
 
 router.get('/', validateQuery(listEventsQuerySchema), eventController.getEvents);
+router.post('/', protect, authorize(ROLES.ORGANIZER), validateBody(createEventSchema), eventController.createEvent);
 router.get('/:id', validateParams(eventIdParamsSchema), eventController.getEventById);
-router.get('/:id/analytics', protect, authorize(ROLES.ORGANIZER), validateParams(eventIdParamsSchema), eventController.getAnalytics);
+router.put('/:id', protect, authorize(ROLES.ORGANIZER), validateParams(eventIdParamsSchema), validateBody(updateEventSchema), eventController.updateEvent);
+router.delete('/:id', protect, authorize(ROLES.ORGANIZER), validateParams(eventIdParamsSchema), eventController.deleteEvent);
 
 module.exports = router;

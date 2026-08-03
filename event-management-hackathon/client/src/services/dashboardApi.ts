@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { apiClient, unwrapApiResponse, getApiErrorMessage } from './apiClient';
 
 export interface EventItem {
   id: string;
@@ -11,71 +11,52 @@ export interface EventItem {
   banner?: string;
 }
 
-const placeholderClient = axios.create({
-  adapter: async (config) => {
-    // simple adapter that returns mocked responses based on URL
-    const now = new Date();
-    const events: EventItem[] = [
-      {
-        id: 'e1',
-        name: 'Summer Tech Meetup',
-        date: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 7).toISOString(),
-        time: '18:00',
-        venue: 'Community Hall',
-        status: 'Upcoming',
-        participants: 124,
-        banner: undefined,
-      },
-      {
-        id: 'e2',
-        name: 'Volunteer Training',
-        date: new Date(now.getTime() - 1000 * 60 * 60 * 24 * 10).toISOString(),
-        time: '10:00',
-        venue: 'Room 204',
-        status: 'Completed',
-        participants: 42,
-      },
-      {
-        id: 'e3',
-        name: 'Charity Concert',
-        date: new Date(now.getTime() + 1000 * 60 * 60 * 24 * 30).toISOString(),
-        time: '20:00',
-        venue: 'Open Grounds',
-        status: 'Upcoming',
-        participants: 580,
-      },
-    ];
-
-    const response = {
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-      config,
-      data: {
-        stats: {
-          totalEvents: events.length,
-          upcomingEvents: events.filter((e) => e.status === 'Upcoming').length,
-          volunteers: 86,
-          registrations: 746,
-        },
-        recentEvents: events,
-        upcoming: events.filter((e) => e.status === 'Upcoming'),
-        notifications: [
-          { id: 'n1', text: '12 new registrations for Summer Tech Meetup' },
-          { id: 'n2', text: 'Volunteer assigned to Charity Concert' },
-          { id: 'n3', text: 'Payment received: Order #827' },
-          { id: 'n4', text: 'Reminder: Volunteer Training tomorrow' },
-        ],
-      },
-    } as any;
-
-    return response;
-  },
-});
+const toDashboardEvent = (event: any): EventItem => {
+  const startAt = event.startAt || event.date;
+  const date = startAt ? new Date(startAt).toISOString() : '';
+  const status = new Date(startAt) > new Date() ? 'Upcoming' : 'Completed';
+  return {
+    id: event._id || event.id,
+    name: event.title || 'Untitled event',
+    date,
+    time: startAt ? new Date(startAt).toTimeString().slice(0, 5) : '',
+    venue: event.venue || 'TBA',
+    status,
+    participants: event.currentRegistrations || 0,
+    banner: event.bannerImage || event.banner,
+  };
+};
 
 export const dashboardApi = {
   fetchOverview: async () => {
-    const res = await placeholderClient.get('/dashboard/overview');
-    return res.data;
+    try {
+      const [eventsResponse, usersResponse] = await Promise.all([
+        apiClient.get('/events'),
+        apiClient.get('/users'),
+      ]);
+      const events = (unwrapApiResponse<any[]>(eventsResponse.data) || []).map(toDashboardEvent);
+      const users = unwrapApiResponse<any[]>(usersResponse.data) || [];
+      const volunteers = users.filter((u: any) => (u.role || '').toLowerCase() === 'volunteer').length;
+      const upcomingEvents = events.filter((event) => event.status === 'Upcoming');
+      const registrations = events.reduce((sum, event) => sum + event.participants, 0);
+
+      return {
+        stats: {
+          totalEvents: events.length,
+          upcomingEvents: upcomingEvents.length,
+          volunteers,
+          registrations,
+        },
+        recentEvents: events.slice(0, 4),
+        upcoming: upcomingEvents.slice(0, 3),
+        notifications: [
+          { id: 'n1', text: `${registrations} registrations across your events` },
+          { id: 'n2', text: `${volunteers} active volunteers are available` },
+          { id: 'n3', text: 'Task board and volunteer assignments are synced from the backend.' },
+        ],
+      };
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, 'Failed to load dashboard overview'));
+    }
   },
 };
