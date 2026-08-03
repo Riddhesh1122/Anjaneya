@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 html, body, #root {
   height: 100%;
 }
 
 body {
-  @apply bg-black text-white font-sans;
+  @apply m-0 bg-slate-950 text-slate-900 antialiased;
 }
+
+* {
+  box-sizing: border-box;
+}
+
