@@ -1,12 +1,16 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
+  mongoose.set('bufferCommands', false);
+  if (!process.env.MONGO_URI) {
+    console.log('ℹ️ MONGO_URI not set. Running in offline/mock mode.');
+    return;
+  }
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Error connecting to MongoDB: ${error.message}`);
-    process.exit(1);
+    console.error(`⚠️ MongoDB Connection Warning: ${error.message}`);
   }
 };
 

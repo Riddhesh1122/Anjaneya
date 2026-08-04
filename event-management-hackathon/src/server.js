@@ -4,7 +4,13 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const morgan = require('morgan');
 
+const connectDB = require('./config/db');
+const apiRoutes = require('./routes');
+
 dotenv.config();
+
+// Connect Database (non-blocking if MONGO_URI is missing)
+connectDB();
 
 const app = express();
 
@@ -12,6 +18,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+
+// API Routes
+app.use('/api', apiRoutes);
 
 // Serve static files (HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, '../public')));
