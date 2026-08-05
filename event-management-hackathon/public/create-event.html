@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Event | EventHub</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app" style="display:none;"></div>
+
+  <header>
+    <div class="container">
+      <h1>EventHub</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="events.html">Events</a>
+        <a href="create-event.html" class="active">Create Event</a>
+        <a href="login.html">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="form-section">
+    <div class="container max-w-md">
+      <h2>Host a New Event</h2>
+      <p class="subtitle">Fill in details to publish your hackathon or event.</p>
+      
+      <div id="form-message"></div>
+
+      <form id="create-event-form" class="card-form">
+        <div class="form-group">
+          <label for="title">Event Title</label>
+          <input type="text" id="title" name="title" placeholder="e.g. Global AI Hackathon 2026" required>
+        </div>
+
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="AI/ML">AI / Machine Learning</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Blockchain">Blockchain / Web3</option>
+            <option value="Mobile App">Mobile Apps</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="college">College / Organization</label>
+          <input type="text" id="college" name="college" placeholder="e.g. Stanford University" required>
+        </div>
+
+        <div class="form-group">
+          <label for="startAt">Event Date</label>
+          <input type="date" id="startAt" name="startAt" required>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="4" placeholder="Briefly describe the event rules, prizes, and schedule..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-full">Publish Event</button>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 EventHub — Built for Hackathon</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
