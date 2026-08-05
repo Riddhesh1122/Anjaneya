@@ -1,6 +1,13 @@
 {
-  "dependencies": {
-    "jsonwebtoken": "^9.0.3",
-    "zod": "^4.4.3"
+  "name": "anjaneya-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cmd /c \"cd server && npm run dev\"",
+    "start": "cmd /c \"cd server && npm run start\"",
+    "server:dev": "cmd /c \"cd server && npm run dev\"",
+    "client:dev": "cmd /c \"cd client && npm run dev\"",
+    "client:build": "cmd /c \"cd client && npm run build\"",
+    "build": "cmd /c \"cd client && npm run build\""
   }
 }

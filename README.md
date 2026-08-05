@@ -1,438 +1,91 @@
-# 🚀 Anjaneya — Event Management System
+# 🚀 Anjaneya — Full-Stack Event Management & AI System
 
 <div align="center">
 
-A modern, scalable Event Management Platform built with React, TypeScript, and TailwindCSS.
-
-Designed to provide a BookMyShow-like experience for discovering, managing, and participating in events.
+A modern, scalable Event & Volunteer Management Platform built with React, TypeScript, TailwindCSS, Node.js, Express, and MongoDB.
 
 </div>
 
 ---
 
-## 📌 Overview
+## 📌 Architecture Overview
 
-**Anjaneya** is a full-stack Event Management System that allows users to discover events, register for events, and manage event workflows based on different user roles.
+Anjaneya is organized as a full-stack monorepo:
 
-The platform is designed with a production-ready frontend architecture, allowing easy integration with a backend API in the future.
-
-The project focuses on:
-
-* Clean architecture
-* Scalable frontend design
-* Role-based experiences
-* Responsive UI
-* Accessible components
-* Future backend compatibility
+```
+Anjaneya Root
+├── client/                     # Frontend React (Vite, TailwindCSS v4, Framer Motion)
+│   ├── src/
+│   │   ├── components/         # Reusable UI & AI Modal Components
+│   │   ├── contexts/           # AuthContext (JWT & localStorage)
+│   │   ├── pages/              # DashboardPage, LoginPage
+│   │   └── services/           # aiApi.ts (Proxied via /api/ai)
+│   └── vite.config.js          # API proxy (/api -> http://localhost:3001)
+│
+├── server/                     # Backend API (Express, Mongoose, Zod, JWT)
+│   ├── src/
+│   │   ├── config/             # Database connection & options
+│   │   ├── constants/          # Role definitions & HTTP status codes
+│   │   ├── controllers/        # Auth, Event, Volunteer, Task, AI Controllers
+│   │   ├── middleware/         # JWT Auth, Role Authorization, Zod Validation
+│   │   ├── models/             # User, Event, Volunteer, Task, Booking schemas
+│   │   ├── routes/             # REST Endpoints (/api/auth, /api/events, /api/ai, etc.)
+│   │   ├── services/           # Business logic & external AI integrations
+│   │   └── validators/         # Zod schemas for request bodies/params
+│   └── package.json
+│
+├── .env.example                # Environment template (Port, JWT, Mongo, AI keys)
+├── docker-compose.yml          # Local MongoDB container definition
+└── package.json                # Root orchestration scripts
+```
 
 ---
-
-# ✨ Features
 
 ## 👥 Role-Based System
 
-The platform supports multiple user roles:
+The platform supports role-based access control (`ROLES` constant):
 
-### Guest
-
-* Browse available events
-* View event details
-* Explore platform features
-
-### Student
-
-* Register for events
-* View registered events
-* Manage tickets
-
-### Organizer
-
-* Create and manage events
-* Track registrations
-* View analytics
-
-### Admin
-
-* Manage users
-* Manage events
-* Monitor platform activity
+- **Attendee (`attendee`)**: Browse events, view recommendations, register.
+- **Student (`student`)**: View registered events, access tickets.
+- **Volunteer (`volunteer`)**: View assigned tasks and volunteer schedules.
+- **Organizer (`organizer`)**: Create & edit events, run AI skill-matching for volunteers, track analytics.
+- **Admin (`admin`)**: Full platform monitoring, user management, and system stats.
 
 ---
 
-# 🏗️ Architecture
+## 🤖 AI Provider Integration
 
-The frontend follows a feature-based architecture.
+Server-side proxied route `/api/ai` supports multiple LLM backends configured via environment variables:
 
-```
-client/src/
-
-├── assets/
-├── components/
-│   ├── ui/
-│   ├── layout/
-│   └── shared/
-│
-├── contexts/
-│   ├── AuthContext.tsx
-│   └── ThemeContext.tsx
-│
-├── features/
-│   ├── auth/
-│   ├── events/
-│   ├── student/
-│   ├── organizer/
-│   └── admin/
-│
-├── hooks/
-├── layouts/
-├── mocks/
-├── router/
-├── services/
-├── types/
-└── utils/
-```
+- **Gemini**: `AI_PROVIDER=gemini` & `GEMINI_API_KEY`
+- **OpenAI**: `AI_PROVIDER=openai` & `OPENAI_API_KEY`
+- **Groq**: `AI_PROVIDER=groq` & `GROQ_API_KEY`
+- **OpenRouter**: `AI_PROVIDER=openrouter` & `OPENROUTER_API_KEY`
+- **Pollinations**: `AI_PROVIDER=pollinations` (Default fallback engine)
 
 ---
 
-# 🛠️ Tech Stack
+## 🚀 Getting Started
 
-## Frontend
-
-| Technology      | Purpose         |
-| --------------- | --------------- |
-| React           | UI development  |
-| TypeScript      | Type safety     |
-| TailwindCSS     | Styling         |
-| React Router v6 | Routing         |
-| React Hook Form | Form management |
-| Zod             | Validation      |
-| Vite            | Build tooling   |
-
----
-
-# 🎨 Design System
-
-Anjaneya uses a centralized design token system.
-
-Implemented:
-
-* Colors
-* Typography
-* Spacing scale
-* Shadows
-* Theme configuration
-
-Location:
-
-```
-src/theme.ts
-```
-
-Benefits:
-
-* Consistent UI
-* Easier redesign
-* Scalable styling
-
----
-
-# 🌙 Theme System
-
-Supports:
-
-* Light mode
-* Dark mode
-* System preference
-
-Features:
-
-✅ OS theme detection
-✅ Manual toggle
-✅ LocalStorage persistence
-
-Flow:
-
-```
-User Preference
-
-        ↓
-
-ThemeContext
-
-        ↓
-
-document.documentElement
-
-        ↓
-
-Tailwind dark mode
-```
-
----
-
-# 🔐 Authentication Architecture
-
-Currently uses mock authentication.
-
-Supported roles:
-
-```
-GUEST
-STUDENT
-ORGANIZER
-ADMIN
-```
-
-Authentication flow:
-
-```
-User
-
- ↓
-
-AuthContext
-
- ↓
-
-Role Verification
-
- ↓
-
-Protected Routes
-
- ↓
-
-Dashboard
-```
-
-The architecture is designed to easily replace mock authentication with JWT/session-based authentication later.
-
----
-
-# 🔌 API Architecture
-
-The application follows a service-based architecture.
-
-Flow:
-
-```
-Component
-
-    ↓
-
-Service Layer
-
-    ↓
-
-API Client
-
-    ↓
-
-Mock Data
-
-```
-
-Future backend migration:
-
-```
-Current:
-
-apiClient
-    |
-Mock Data
-
-
-Future:
-
-apiClient
-    |
-Backend API
-```
-
-Components will not require major changes.
-
----
-
-# 📂 Development Progress
-
-## Phase 1 — Foundation
-
-Status: 🟢 In Progress
-
-Completed:
-
-✅ Repository analysis
-✅ Frontend architecture
-✅ Design token system
-✅ Authentication Context
-✅ Theme Context
-✅ Context structure cleanup
-✅ TypeScript build verification
-
-In Progress:
-
-⏳ Type definitions
-⏳ Mock database
-⏳ API service layer
-⏳ Form system
-
----
-
-## Phase 2 — Design System
-
-Planned:
-
-* Button
-* Input
-* Card
-* Modal
-* Toast
-* Badge
-* Loading states
-* Error states
-
----
-
-## Phase 3 — Core User Experience
-
-Planned:
-
-```
-Landing Page
-
-        ↓
-
-Explore Events
-
-        ↓
-
-Event Details
-
-        ↓
-
-Registration
-
-        ↓
-
-Dashboard
-```
-
----
-
-# 📱 Planned Features
-
-## Event Discovery
-
-* Search events
-* Filter by category
-* View event details
-* Browse upcoming events
-
-## Event Management
-
-Organizers can:
-
-* Create events
-* Edit events
-* Manage participants
-* View analytics
-
-## Student Experience
-
-Students can:
-
-* Register
-* View tickets
-* Track events
-
-## Analytics
-
-Dashboard statistics:
-
-* Registrations
-* Attendance
-* Event performance
-
----
-
-# 🚀 Getting Started
-
-## Clone Repository
-
+### 1. Configure Environment Variables
+Copy `.env.example` to `.env`:
 ```bash
-git clone <repository-url>
+cp .env.example .env
 ```
 
-## Install Dependencies
-
+### 2. Install Dependencies
+Install packages across root, `/client`, and `/server`:
 ```bash
-npm install
+npm run install:all
 ```
 
-## Start Development Server
-
+### 3. Start Development Servers
+Start both backend API server (port `3001`) and frontend dashboard (port `5173`):
 ```bash
 npm run dev
 ```
 
-## Build Production Version
-
+### 4. Build Production Bundle
 ```bash
 npm run build
 ```
-
----
-
-# 🧪 Testing
-
-Planned testing stack:
-
-* Jest
-* React Testing Library
-
-Testing coverage:
-
-* UI components
-* Authentication
-* Protected routes
-* Forms
-
----
-
-# 🔮 Future Improvements
-
-Possible additions:
-
-* Real backend integration
-* JWT authentication
-* Payment gateway
-* Email notifications
-* QR-based event tickets
-* Cloud image storage
-* Real-time updates
-* Mobile application
-
----
-
-# 🤝 Contribution
-
-Contributions and suggestions are welcome.
-
-For major changes:
-
-1. Open an issue
-2. Discuss proposed changes
-3. Submit a pull request
-
----
-
-# 👨‍💻 Developer
-
-Built as a scalable Event Management Platform project.
-
----
-
-# 📜 License
-
-This project is currently for educational and development purposes.
-
