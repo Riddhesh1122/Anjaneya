@@ -7,6 +7,8 @@ const connectDB = async () => {
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     logger.error(`Error connecting to MongoDB: ${error.message}`);
+    // Disable Mongoose buffering so API requests fail immediately without hanging when MongoDB is offline
+    mongoose.set('bufferCommands', false);
     // Throw the error so the caller (server startup) can decide how to handle it.
     throw error;
   }

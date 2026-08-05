@@ -18,13 +18,37 @@ import {
   AlertCircle,
   Cpu,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Ticket,
+  QrCode,
+  ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { SidebarProvider } from '../contexts/SidebarContext';
+import { useTheme } from '../contexts/ThemeContext';
 import Sidebar from '../components/Sidebar';
 import TopNavbar from '../components/TopNavbar';
 import StatCard from '../components/StatCard';
 import ActivityTable from '../components/ActivityTable';
+
+import MetricCard from '../components/dashboard/MetricCard';
+import QuickActions from '../components/dashboard/QuickActions';
+import RecentEvents from '../components/dashboard/RecentEvents';
+import AIWidget from '../components/dashboard/AIWidget';
+import ActivityFeed from '../components/dashboard/ActivityFeed';
+import VolunteerPanel from '../components/dashboard/VolunteerPanel';
+
+// UI Primitives
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton, CardSkeleton } from '../components/ui/Skeleton';
+
+// Role Views & Specialized Components
+import QRCodeModal from '../components/QRCodeModal';
+import EventDetailsModal from '../components/EventDetailsModal';
+import VolunteerTaskBoard from '../components/VolunteerTaskBoard';
+import AdminOverview from '../components/AdminOverview';
 
 // AI Components
 import FloatingAIButton from '../components/ai/FloatingAIButton';
@@ -46,18 +70,23 @@ import {
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   // Navigation & Search state
   const [activeSection, setActiveSection] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Section Minimization States
   const [isRecsMinimized, setIsRecsMinimized] = useState(false);
   const [isEventsMinimized, setIsEventsMinimized] = useState(false);
   const [isVolunteersMinimized, setIsVolunteersMinimized] = useState(false);
   const [isTasksMinimized, setIsTasksMinimized] = useState(false);
+
+  // Role & Specialized Modals state
+  const [currentRole, setCurrentRole] = useState<'organizer' | 'attendee' | 'volunteer' | 'admin'>('organizer');
+  const [qrModalEvent, setQrModalEvent] = useState<any>(null);
+  const [detailsModalEvent, setDetailsModalEvent] = useState<any>(null);
 
   // AI Modals state
   const [generatorModalMode, setGeneratorModalMode] = useState<GeneratorMode | null>(null);
@@ -127,14 +156,17 @@ export default function DashboardPage() {
 
   // Load AI & Backend Data on mount
   useEffect(() => {
-    getEventRecommendations().then(setRecommendations);
-    generateAIAnalyticsInsights().then(setInsights);
+    let isMounted = true;
+
+    getEventRecommendations().then((res) => { if (isMounted) setRecommendations(res); });
+    generateAIAnalyticsInsights().then((res) => { if (isMounted) setInsights(res); });
 
     // Fetch real events
     setIsLoadingEvents(true);
     fetch('/api/events')
       .then((res) => res.json())
       .then((data) => {
+        if (!isMounted) return;
         const items = Array.isArray(data) ? data : data.data || [];
         if (items.length > 0) {
           setRealEvents(items);
@@ -146,6 +178,7 @@ export default function DashboardPage() {
         setIsLoadingEvents(false);
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.warn('Events API fetch failed:', err);
         setRealEvents(initialEvents);
         setFilteredEvents(initialEvents);
@@ -158,11 +191,13 @@ export default function DashboardPage() {
     fetch('/api/volunteers')
       .then((res) => res.json())
       .then((data) => {
+        if (!isMounted) return;
         const items = Array.isArray(data) ? data : data.data || [];
         setRealVolunteers(items);
         setIsLoadingVolunteers(false);
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.warn('Volunteers API fetch failed:', err);
         setVolunteersError('Volunteer service offline. Connect MongoDB to enable persistent volunteer matching.');
         setIsLoadingVolunteers(false);
@@ -173,21 +208,29 @@ export default function DashboardPage() {
     fetch('/api/tasks')
       .then((res) => res.json())
       .then((data) => {
+        if (!isMounted) return;
         const items = Array.isArray(data) ? data : data.data || [];
         setRealTasks(items);
         setIsLoadingTasks(false);
       })
       .catch((err) => {
+        if (!isMounted) return;
         console.warn('Tasks API fetch failed:', err);
         setTasksError('Task management service offline. Connect MongoDB to sync task assignments.');
         setIsLoadingTasks(false);
       });
+
+    return () => { isMounted = false; };
   }, []);
 
   // Handle Natural Language Smart Search
   useEffect(() => {
+    let isMounted = true;
     const all = [...createdEvents, ...(realEvents.length > 0 ? realEvents : initialEvents)];
-    smartSearchEvents(searchQuery, all).then(setFilteredEvents);
+    smartSearchEvents(searchQuery, all).then((res) => {
+      if (isMounted) setFilteredEvents(res);
+    });
+    return () => { isMounted = false; };
   }, [searchQuery, createdEvents, realEvents]);
 
   const handleLogout = () => {
@@ -254,248 +297,291 @@ export default function DashboardPage() {
 
   /* Section Content Renderers */
 
-  // 1. HOME / DASHBOARD VIEW
-  const renderHome = () => (
-    <motion.div
-      key="home"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-8"
-    >
-      {/* Welcome Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
-            Welcome back, <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">{user?.name || 'Organizer'}</span> 👋
-          </h1>
-          <p className="text-slate-400 text-xs sm:text-sm mt-1">Here is your AI-Powered Event & Volunteer Management overview.</p>
-        </div>
+  // 1. HOME / DASHBOARD VIEW — redesigned
+  const renderHome = () => {
+    const textPri = isDark ? 'text-zinc-100' : 'text-zinc-900';
+    const textMut = isDark ? 'text-zinc-400' : 'text-zinc-500';
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowConfigModal(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 font-semibold text-xs flex items-center gap-2 cursor-pointer transition-all"
-          >
-            <Cpu className="w-4 h-4 text-purple-400" />
-            <span>LLM Settings</span>
-          </button>
-          <button
-            onClick={() => setGeneratorModalMode('event')}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold text-xs flex items-center gap-2 cursor-pointer shadow-lg shadow-purple-500/25"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>✨ Create Event with AI</span>
-          </button>
-        </div>
-      </div>
+    const now = new Date();
+    const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
+    const dateStr = now.toLocaleDateString('en-IN', { weekday: 'long', month: 'long', day: 'numeric' });
 
-      {/* Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-        {stats.map((stat, i) => (
-          <StatCard key={stat.title} {...stat} delay={i * 0.1} />
-        ))}
-      </div>
+    const metricData = [
+      {
+        title: 'Active Events',
+        value: filteredEvents.length || 3,
+        trend: '18.2%',
+        trendUp: true,
+        icon: <Calendar className="w-4 h-4 text-amber-500" />,
+        sparkline: [30, 45, 40, 60, 55, 70, 65, filteredEvents.length * 20 || 80],
+      },
+      {
+        title: 'Volunteers Matched',
+        value: realVolunteers.length || 3,
+        trend: '23.1%',
+        trendUp: true,
+        icon: <UserCheck className="w-4 h-4 text-emerald-500" />,
+        sparkline: [20, 35, 30, 50, 45, 60, 55, 75],
+      },
+      {
+        title: 'Total Registrations',
+        value: '8,642',
+        trend: '12.5%',
+        trendUp: true,
+        icon: <CheckSquare className="w-4 h-4 text-violet-400" />,
+        sparkline: [50, 65, 55, 80, 70, 85, 78, 95],
+      },
+      {
+        title: 'AI Accuracy',
+        value: '98.4%',
+        trend: '4.3%',
+        trendUp: true,
+        icon: <Sparkles className="w-4 h-4 text-indigo-400" />,
+        sparkline: [80, 82, 85, 88, 86, 90, 92, 95],
+      },
+    ];
 
-      {/* AI RECOMMENDATIONS SECTION WITH MINIMIZE / EXPAND */}
-      <div className="rounded-3xl bg-white/[0.02] border border-white/10 p-6 backdrop-blur-xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-400" />
-            <h2 className="text-lg font-bold text-white">Recommended For You</h2>
-            <span className="text-xs text-purple-300 font-medium bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 hidden sm:inline-block">
-              Personalized by AI
-            </span>
+    return (
+      <motion.div
+        key="home"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        transition={{ duration: 0.25 }}
+        className="space-y-5"
+      >
+        {/* ── Header ── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className={`text-xl font-semibold ${textPri}`}>
+              {greeting}, <span className="text-amber-500">{user?.name?.split(' ')[0] || 'there'}</span> 👋
+            </h1>
+            <p className={`text-xs mt-0.5 ${textMut}`}>{dateStr} · Here's what's happening on your platform.</p>
           </div>
+          <QuickActions
+            onCreateEvent={() => setGeneratorModalMode('event')}
+            onAIGenerate={() => setGeneratorModalMode('event')}
+            onInviteVolunteer={() => setGeneratorModalMode('volunteer')}
+          />
+        </div>
 
-          <button
-            onClick={() => setIsRecsMinimized(!isRecsMinimized)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
-          >
-            <span>{isRecsMinimized ? 'Expand List' : 'Minimize List'}</span>
-            {isRecsMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
+        {/* ── Metric cards ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {metricData.map((m, i) => (
+            <MetricCard key={m.title} {...m} delay={i * 0.07} />
+          ))}
+        </div>
+
+        {/* ── Recent Events + AI Widget ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <RecentEvents
+              events={filteredEvents}
+              onViewDetails={ev => setDetailsModalEvent(ev)}
+              onGetQR={ev => setQrModalEvent(ev)}
+            />
+          </div>
+          <AIWidget
+            onLaunchAI={() => setGeneratorModalMode('event')}
+            onVolunteerMatch={() => setGeneratorModalMode('volunteer')}
+          />
+        </div>
+
+        {/* ── Volunteer Panel + Activity Feed ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <VolunteerPanel />
+          <div className="lg:col-span-2">
+            <ActivityFeed />
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
+
+  // 2. EVENTS PAGE
+  const renderEvents = () => {
+    const textPri = isDark ? 'text-zinc-100' : 'text-zinc-900';
+    const textMut = isDark ? 'text-zinc-400' : 'text-zinc-500';
+    const cardBg = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
+
+    return (
+      <motion.div
+        key="events"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -16 }}
+        transition={{ duration: 0.25 }}
+        className="space-y-5"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className={`text-xl font-semibold ${textPri}`}>Event Hub</h1>
+            <p className={`text-xs mt-0.5 ${textMut}`}>Manage, search, and generate events using AI</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEventsMinimized(!isEventsMinimized)}
+            >
+              {isEventsMinimized ? 'Expand Events' : 'Minimize Events'}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<Sparkles className="w-3.5 h-3.5 text-zinc-950" />}
+              onClick={() => setGeneratorModalMode('event')}
+            >
+              Generate with AI
+            </Button>
+          </div>
+        </div>
+
+        {searchQuery && (
+          <div className={`p-3 rounded-xl border flex items-center justify-between text-xs ${isDark ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+            <span>🔍 Showing AI Smart Search results for: <strong>"{searchQuery}"</strong> ({filteredEvents.length} found)</span>
+            <button onClick={() => setSearchQuery('')} className="font-semibold underline cursor-pointer">Clear Filter</button>
+          </div>
+        )}
+
+        {isLoadingEvents ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        ) : filteredEvents.length === 0 ? (
+          <EmptyState
+            icon={<Calendar className="w-6 h-6 text-amber-500" />}
+            title="No events found"
+            description={searchQuery ? `No events matched your search query "${searchQuery}".` : "You haven't created any events yet."}
+            actionLabel="Generate Event with AI"
+            onAction={() => setGeneratorModalMode('event')}
+          />
+        ) : (
+          <AnimatePresence>
+            {!isEventsMinimized && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredEvents.map((ev) => (
+                    <motion.div
+                      key={ev.id}
+                      whileHover={{ y: -3 }}
+                      className={`p-5 rounded-xl border ${cardBg} flex flex-col justify-between transition-all group`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant="amber">{ev.category}</Badge>
+                          <span className="text-xs text-emerald-500 font-semibold">{ev.isFree ? 'Free Pass' : `$${ev.price}`}</span>
+                        </div>
+                        <h3 className={`text-sm font-semibold mb-1 group-hover:text-amber-500 transition-colors ${textPri}`}>{ev.title}</h3>
+                        <p className={`text-xs mb-4 line-clamp-2 leading-relaxed ${textMut}`}>{ev.description}</p>
+                      </div>
+
+                      <div className={`space-y-3 pt-3 border-t ${isDark ? 'border-zinc-800' : 'border-zinc-100'}`}>
+                        <div className={`flex items-center justify-between text-xs ${textMut}`}>
+                          <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-amber-500" /> {ev.date}</span>
+                          <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-indigo-400" /> {ev.location}</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button variant="outline" size="sm" onClick={() => setDetailsModalEvent(ev)}>
+                            Details
+                          </Button>
+                          <Button variant="primary" size="sm" onClick={() => setQrModalEvent(ev)} leftIcon={<QrCode className="w-3.5 h-3.5" />}>
+                            QR Pass
+                          </Button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        )}
+      </motion.div>
+    );
+  };
+
+  // 3. VOLUNTEERS PAGE
+  const renderVolunteers = () => {
+    const textPri = isDark ? 'text-zinc-100' : 'text-zinc-900';
+    const textMut = isDark ? 'text-zinc-400' : 'text-zinc-500';
+    const cardBg = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
+
+    return (
+      <motion.div
+        key="volunteers"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -16 }}
+        transition={{ duration: 0.25 }}
+        className="space-y-5"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className={`text-xl font-semibold ${textPri}`}>Volunteer Management</h1>
+            <p className={`text-xs mt-0.5 ${textMut}`}>AI Automated Skill Matching & Allocation</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setIsVolunteersMinimized(!isVolunteersMinimized)}>
+              {isVolunteersMinimized ? 'Expand' : 'Minimize'}
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<UserCheck className="w-3.5 h-3.5" />}
+              onClick={() => setGeneratorModalMode('volunteer')}
+            >
+              Launch AI Matcher
+            </Button>
+          </div>
         </div>
 
         <AnimatePresence>
-          {!isRecsMinimized && (
+          {!isVolunteersMinimized && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-hidden pt-6"
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recommendations.map((event) => (
-                  <AIRecommendationCard key={event.id} event={event} />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { name: 'Aarav Sharma', role: 'Check-in Lead', score: '96%', status: 'Assigned', skills: ['Registration', 'React'] },
+                  { name: 'Priya Patel', role: 'AV Stage Setup', score: '91%', status: 'Confirmed', skills: ['AV Sound', 'Logistics'] },
+                  { name: 'Rohan Verma', role: 'Speaker Liaison', score: '88%', status: 'Pending', skills: ['Public Relations', 'Python'] },
+                ].map((vol) => (
+                  <div key={vol.name} className={`p-5 rounded-xl border ${cardBg}`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`font-semibold text-xs ${textPri}`}>{vol.name}</span>
+                      <Badge variant="indigo">{vol.score} Fit</Badge>
+                    </div>
+                    <p className={`text-xs mb-3 ${textMut}`}>Assigned Role: <strong className={textPri}>{vol.role}</strong></p>
+                    <div className="flex flex-wrap gap-1">
+                      {vol.skills.map((s) => (
+                        <span key={s} className={`px-2 py-0.5 rounded text-[10px] ${isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-600'}`}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </motion.div>
+    );
+  };
 
-      {/* Activity Table full width */}
-      <div className="w-full">
-        <ActivityTable />
-      </div>
-    </motion.div>
-  );
-
-  // 2. EVENTS PAGE & CREATE EVENT WITH MINIMIZE TOGGLE
-  const renderEvents = () => (
-    <motion.div
-      key="events"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Event Hub</h1>
-          <p className="text-slate-400 text-xs sm:text-sm">Manage, filter, and generate events using AI</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsEventsMinimized(!isEventsMinimized)}
-            className="px-3.5 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 flex items-center gap-1.5 cursor-pointer hover:bg-white/10"
-          >
-            <span>{isEventsMinimized ? 'Expand Events' : 'Minimize Events'}</span>
-            {isEventsMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={() => setGeneratorModalMode('event')}
-            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold text-xs flex items-center gap-2 cursor-pointer shadow-lg shadow-purple-500/25"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300 animate-spin" />
-            <span>✨ Generate with AI</span>
-          </button>
-        </div>
-      </div>
-
-      {searchQuery && (
-        <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-200 flex items-center justify-between">
-          <span>
-            🔍 Showing AI Smart Search results for: <strong>"{searchQuery}"</strong> ({filteredEvents.length} events found)
-          </span>
-          <button onClick={() => setSearchQuery('')} className="text-xs text-purple-400 underline">Clear Filter</button>
-        </div>
-      )}
-
-      <AnimatePresence>
-        {!isEventsMinimized && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents.map((ev) => (
-                <motion.div
-                  key={ev.id}
-                  whileHover={{ y: -4 }}
-                  className="rounded-3xl bg-gradient-to-br from-white/10 to-white/[0.02] border border-white/10 p-6 backdrop-blur-xl flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                        {ev.category}
-                      </span>
-                      <span className="text-xs text-emerald-400 font-semibold">{ev.isFree ? 'Free Pass' : `$${ev.price}`}</span>
-                    </div>
-                    <h3 className="text-base font-bold text-white mb-2">{ev.title}</h3>
-                    <p className="text-xs text-slate-400 mb-4">{ev.description}</p>
-                  </div>
-                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
-                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-indigo-400" /> {ev.date}</span>
-                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-pink-400" /> {ev.location}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-
-  // 3. VOLUNTEERS & AI ASSIGNMENT PAGE WITH MINIMIZE TOGGLE
-  const renderVolunteers = () => (
-    <motion.div
-      key="volunteers"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Organizer Volunteer Management</h1>
-          <p className="text-slate-400 text-xs sm:text-sm">AI Automated Skill Matching & Assignment</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsVolunteersMinimized(!isVolunteersMinimized)}
-            className="px-3.5 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 flex items-center gap-1.5 cursor-pointer hover:bg-white/10"
-          >
-            <span>{isVolunteersMinimized ? 'Expand Volunteers' : 'Minimize Volunteers'}</span>
-            {isVolunteersMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={() => setGeneratorModalMode('volunteer')}
-            className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-xs flex items-center gap-2 cursor-pointer shadow-lg"
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Launch AI Volunteer Matcher</span>
-          </button>
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {!isVolunteersMinimized && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { name: 'Aarav Sharma', role: 'Check-in Lead', score: '96%', status: 'Assigned', skills: ['Registration', 'React'] },
-                { name: 'Priya Patel', role: 'AV Stage Setup', score: '91%', status: 'Confirmed', skills: ['AV Sound', 'Logistics'] },
-                { name: 'Rohan Verma', role: 'Speaker Liaison', score: '88%', status: 'Pending', skills: ['Public Relations', 'Python'] },
-              ].map((vol) => (
-                <div key={vol.name} className="p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-bold text-white text-sm">{vol.name}</span>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                      {vol.score} Fit
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400 mb-3">Assigned Role: <strong className="text-slate-200">{vol.role}</strong></p>
-                  <div className="flex flex-wrap gap-1">
-                    {vol.skills.map((s) => (
-                      <span key={s} className="px-2 py-0.5 rounded-md text-[10px] bg-white/10 text-slate-300">{s}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-
-  // 4. TASKS PAGE WITH MINIMIZE TOGGLE
+  // 4. TASKS PAGE (VOLUNTEER KANBAN DUTY BOARD)
   const renderTasks = () => (
     <motion.div
       key="tasks"
@@ -503,49 +589,8 @@ export default function DashboardPage() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="space-y-6"
     >
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Your Assigned Tasks</h1>
-        <button
-          onClick={() => setIsTasksMinimized(!isTasksMinimized)}
-          className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 flex items-center gap-1.5 cursor-pointer hover:bg-white/10"
-        >
-          <span>{isTasksMinimized ? 'Expand Tasks' : 'Minimize Tasks'}</span>
-          {isTasksMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {!isTasksMinimized && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden space-y-3"
-          >
-            {[
-              { task: 'Check-in Desk Leader', event: 'AI & ML Innovations Summit', time: 'Today, 9:30 AM', priority: 'High' },
-              { task: 'AV & Projection Setup', event: 'Global Hackathon', time: 'Aug 6, 1:00 PM', priority: 'Medium' },
-              { task: 'Web Development Mentor', event: 'Community Code Sprint', time: 'Aug 8, 3:00 PM', priority: 'High' },
-            ].map((t, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <CheckSquare className="w-5 h-5 text-indigo-400" />
-                  <div>
-                    <p className="text-sm font-bold text-white">{t.task}</p>
-                    <p className="text-xs text-slate-400">{t.event} • {t.time}</p>
-                  </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${t.priority === 'High' ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'}`}>
-                  {t.priority} Priority
-                </span>
-              </div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <VolunteerTaskBoard />
     </motion.div>
   );
 
@@ -679,7 +724,21 @@ export default function DashboardPage() {
   };
 
   const sectionRenderers: Record<string, () => JSX.Element> = {
-    home: renderHome,
+    home: () => {
+      if (currentRole === 'admin') {
+        return (
+          <motion.div
+            key="admin-home"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <AdminOverview />
+          </motion.div>
+        );
+      }
+      return renderHome();
+    },
     events: renderEvents,
     volunteers: renderVolunteers,
     tasks: renderTasks,
@@ -690,56 +749,68 @@ export default function DashboardPage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen bg-slate-950 flex relative text-slate-100"
-    >
-      {/* Sidebar Navigation */}
-      <Sidebar
-        activeSection={activeSection}
-        onNavigate={setActiveSection}
-        onLogout={handleLogout}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-      />
-
-      {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
-        isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
-      }`}>
-        <TopNavbar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onOpenAIStudio={() => setGeneratorModalMode('event')}
-          onOpenAIConfig={() => setShowConfigModal(true)}
+    <SidebarProvider>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className={`flex h-screen overflow-hidden transition-colors duration-300 ${isDark ? 'bg-zinc-950 text-zinc-100' : 'bg-zinc-50 text-zinc-900'}`}
+      >
+        {/* Sidebar — flex-shrink-0, sticky, participates in flexbox */}
+        <Sidebar
+          activeSection={activeSection}
+          onNavigate={setActiveSection}
+          onLogout={handleLogout}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          <AnimatePresence mode="wait">
-            {sectionRenderers[activeSection]?.()}
-          </AnimatePresence>
-        </main>
-      </div>
-
-      {/* FLOATING AI ASSISTANT BUTTON (ON EVERY PAGE) */}
-      <FloatingAIButton />
-
-      {/* AI GENERATOR MODAL */}
-      <AnimatePresence>
-        {generatorModalMode && (
-          <AIGeneratorModal
-            initialMode={generatorModalMode}
-            onClose={() => setGeneratorModalMode(null)}
-            onSaveEventData={handleSaveGeneratedEvent}
+        {/* Main content column — flex-1 fills all remaining space */}
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <TopNavbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onOpenAIStudio={() => setGeneratorModalMode('event')}
+            onOpenAIConfig={() => setShowConfigModal(true)}
+            currentRole={currentRole}
+            onRoleChange={(role) => setCurrentRole(role as any)}
           />
-        )}
-      </AnimatePresence>
 
-      {/* AI LLM PROVIDER & KEY SETTINGS MODAL */}
-      <AnimatePresence>
-        {showConfigModal && <AIConfigModal onClose={() => setShowConfigModal(false)} />}
-      </AnimatePresence>
-    </motion.div>
+          <main className={`flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 ${isDark ? 'bg-zinc-950' : 'bg-zinc-50'}`}>
+            <AnimatePresence mode="wait">
+              {sectionRenderers[activeSection]?.()}
+            </AnimatePresence>
+          </main>
+        </div>
+
+        {/* ── Floating + Modal layers (use fixed positioning internally) ── */}
+        <FloatingAIButton />
+
+        <QRCodeModal
+          isOpen={Boolean(qrModalEvent)}
+          onClose={() => setQrModalEvent(null)}
+          event={qrModalEvent}
+          attendeeName={user?.name || 'Demo Attendee'}
+        />
+
+        <EventDetailsModal
+          isOpen={Boolean(detailsModalEvent)}
+          onClose={() => setDetailsModalEvent(null)}
+          event={detailsModalEvent}
+          onOpenQR={(ev) => setQrModalEvent(ev)}
+        />
+
+        <AnimatePresence>
+          {generatorModalMode && (
+            <AIGeneratorModal
+              initialMode={generatorModalMode}
+              onClose={() => setGeneratorModalMode(null)}
+              onSaveEventData={handleSaveGeneratedEvent}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showConfigModal && <AIConfigModal onClose={() => setShowConfigModal(false)} />}
+        </AnimatePresence>
+      </motion.div>
+    </SidebarProvider>
   );
 }

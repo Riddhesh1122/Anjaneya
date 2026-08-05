@@ -10,6 +10,28 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* ── Dark theme tokens (default) ── */
+  --color-bg:         #09090b; /* zinc-950 */
+  --color-surface:    #18181b; /* zinc-900 */
+  --color-surface-2:  #27272a; /* zinc-800 */
+  --color-border:     #27272a; /* zinc-800 */
+  --color-border-2:   #3f3f46; /* zinc-700 */
+  --color-text:       #fafafa; /* zinc-50  */
+  --color-text-muted: #a1a1aa; /* zinc-400 */
+  --color-text-sub:   #71717a; /* zinc-500 */
+}
+
+/* ── Light theme tokens ── */
+:root.light-mode {
+  --color-bg:         #ffffff;
+  --color-surface:    #fafafa; /* zinc-50  */
+  --color-surface-2:  #f4f4f5; /* zinc-100 */
+  --color-border:     #e4e4e7; /* zinc-200 */
+  --color-border-2:   #d4d4d8; /* zinc-300 */
+  --color-text:       #09090b; /* zinc-950 */
+  --color-text-muted: #52525b; /* zinc-600 */
+  --color-text-sub:   #71717a; /* zinc-500 */
 }
 
 * {
@@ -23,10 +45,11 @@ html {
 }
 
 body {
-  background: #0a0f1e;
-  color: #e2e8f0;
+  background: var(--color-bg);
+  color: var(--color-text);
   min-height: 100vh;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Custom scrollbar — slim and subtle */
@@ -168,6 +191,7 @@ body {
   to { transform: rotate(360deg); }
 }
 
+
 .spinner {
   width: 20px; height: 20px;
   border: 2.5px solid rgba(255,255,255,0.3);
@@ -175,3 +199,68 @@ body {
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+
+/* ─────────────────────────────────────────
+   ANJANEYA DESIGN SYSTEM TOKENS & UTILITIES
+   Saffron (#FF7A00) & Indigo (#4F46E5)
+   ───────────────────────────────────────── */
+
+:root {
+  --color-saffron: #FF7A00;
+  --color-saffron-light: #FF9E43;
+  --color-indigo: #4F46E5;
+  --color-indigo-dark: #3730A3;
+}
+
+/* Custom Glassmorphism Classes */
+.glass-card {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 122, 0, 0.15);
+}
+
+/* Saffron Glow and Indigo Glow Effects */
+.glow-saffron {
+  box-shadow: 0 0 20px rgba(255, 122, 0, 0.35);
+}
+
+.glow-indigo {
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.35);
+}
+
+/* Gradient Text and Buttons */
+.bg-saffron-indigo {
+  background: linear-gradient(135deg, #FF7A00 0%, #4F46E5 100%);
+}
+
+.text-gradient-saffron {
+  background: linear-gradient(135deg, #FF9E43 0%, #FF7A00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-indigo {
+  background: linear-gradient(135deg, #818CF8 0%, #4F46E5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-brand {
+  background: linear-gradient(135deg, #FF7A00 0%, #818CF8 50%, #4F46E5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.border-saffron-glow:hover {
+  border-color: rgba(255, 122, 0, 0.5);
+  box-shadow: 0 0 15px rgba(255, 122, 0, 0.25);
+}
+

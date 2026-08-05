@@ -1,186 +1,207 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home,
-  BarChart2,
-  Users,
-  Settings,
-  Calendar,
-  UserCheck,
-  CheckSquare,
-  Sparkles,
-  LogOut,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight
+  Home, BarChart2, Users, Settings, Calendar, UserCheck,
+  CheckSquare, Sparkles, LogOut, Menu, X, ChevronLeft, ChevronRight,
+  HelpCircle, Bell,
 } from 'lucide-react';
+import { useSidebar } from '../contexts/SidebarContext';
+import { useTheme } from '../contexts/ThemeContext';
 
-const navItems = [
-  { key: 'home', label: 'Dashboard', icon: Home, highlight: false },
-  { key: 'events', label: 'Events', icon: Calendar, highlight: false },
-  { key: 'volunteers', label: 'Volunteers', icon: UserCheck, highlight: false },
-  { key: 'tasks', label: 'Tasks', icon: CheckSquare, highlight: false },
-  { key: 'analytics', label: 'Analytics & AI Insights', icon: BarChart2, highlight: false },
-  { key: 'ai-studio', label: 'AI Studio Tools', icon: Sparkles, highlight: true },
-  { key: 'users', label: 'Community Users', icon: Users, highlight: false },
-  { key: 'settings', label: 'Settings', icon: Settings, highlight: false },
+/* ── Navigation structure ── */
+const NAV_GROUPS = [
+  {
+    label: 'Main',
+    items: [
+      { key: 'home',       label: 'Dashboard',   icon: Home       },
+      { key: 'events',     label: 'Events',       icon: Calendar   },
+      { key: 'volunteers', label: 'Volunteers',   icon: UserCheck  },
+      { key: 'tasks',      label: 'Tasks',        icon: CheckSquare },
+    ],
+  },
+  {
+    label: 'AI & Data',
+    items: [
+      { key: 'ai-studio',  label: 'AI Studio',   icon: Sparkles   },
+      { key: 'analytics',  label: 'Analytics',   icon: BarChart2  },
+    ],
+  },
+  {
+    label: 'Settings',
+    items: [
+      { key: 'users',      label: 'Users',        icon: Users      },
+      { key: 'settings',   label: 'Settings',     icon: Settings   },
+    ],
+  },
 ];
 
 interface SidebarProps {
   activeSection: string;
   onNavigate: (section: string) => void;
   onLogout: () => void;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
 }
 
-export default function Sidebar({
-  activeSection,
-  onNavigate,
-  onLogout,
-  isCollapsed = false,
-  onToggleCollapse,
-}: SidebarProps) {
+export default function Sidebar({ activeSection, onNavigate, onLogout }: SidebarProps) {
+  const { collapsed, toggleSidebar } = useSidebar();
+  const { isDark } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleNav = (key: string) => {
-    onNavigate(key);
-    setMobileOpen(false);
-  };
+  const handleNav = (key: string) => { onNavigate(key); setMobileOpen(false); };
 
-  const sidebarContent = (collapsedMode: boolean) => (
-    <div className="flex flex-col h-full">
-      {/* Brand & Collapse Toggle Header */}
-      <div className="flex items-center justify-between px-4 py-5 border-b border-white/5">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-purple-500/25 flex-shrink-0">
+  /* ── Color tokens ── */
+  const bg       = isDark ? 'bg-zinc-950'    : 'bg-white';
+  const border   = isDark ? 'border-zinc-800' : 'border-zinc-200';
+  const text     = isDark ? 'text-zinc-400'  : 'text-zinc-500';
+  const textAct  = isDark ? 'text-zinc-100'  : 'text-zinc-900';
+  const hoverBg  = isDark ? 'hover:bg-zinc-900' : 'hover:bg-zinc-100';
+  const activeBg = isDark ? 'bg-zinc-900 text-zinc-100' : 'bg-zinc-100 text-zinc-900';
+  const divider  = isDark ? 'border-zinc-800/60' : 'border-zinc-100';
+  const groupLbl = isDark ? 'text-zinc-600' : 'text-zinc-400';
+
+  /* ── Inner content (shared desktop + mobile) ── */
+  const content = (forceExpanded = false) => {
+    const isCollapsed = collapsed && !forceExpanded;
+    return (
+      <div className="flex flex-col h-full">
+
+        {/* Brand header */}
+        <div className={`flex items-center border-b ${border} h-14 px-4 gap-3 flex-shrink-0`}>
+          <div className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center text-zinc-950 font-black text-sm flex-shrink-0">
             A
           </div>
-          {!collapsedMode && (
-            <div className="whitespace-nowrap">
-              <span className="text-lg font-extrabold bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent block">
-                Anjaneya
-              </span>
-              <span className="text-[10px] text-purple-400 font-semibold tracking-wider uppercase block">
-                AI Event Platform
-              </span>
+          {!isCollapsed && (
+            <div className="flex-1 min-w-0">
+              <p className={`text-sm font-semibold truncate ${textAct}`}>Anjaneya</p>
+              <p className={`text-[10px] truncate ${text}`}>Event & Volunteer AI</p>
             </div>
+          )}
+          {/* Desktop collapse toggle */}
+          {!forceExpanded && (
+            <button
+              onClick={toggleSidebar}
+              title={isCollapsed ? 'Expand' : 'Collapse'}
+              className={`hidden lg:flex p-1.5 rounded-md transition-colors cursor-pointer ${hoverBg} ${text} hover:${textAct}`}
+            >
+              {isCollapsed
+                ? <ChevronRight className="w-3.5 h-3.5" />
+                : <ChevronLeft className="w-3.5 h-3.5" />}
+            </button>
           )}
         </div>
 
-        {/* Collapse Minimize Desktop Button */}
-        {onToggleCollapse && (
-          <button
-            onClick={onToggleCollapse}
-            title={collapsedMode ? 'Expand Sidebar' : 'Minimize Sidebar'}
-            className="hidden lg:flex p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
-          >
-            {collapsedMode ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
-        )}
-      </div>
-
-      {/* Nav items */}
-      <nav className="flex-1 px-2.5 mt-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeSection === item.key;
-          return (
-            <motion.button
-              key={item.key}
-              onClick={() => handleNav(item.key)}
-              whileHover={{ x: collapsedMode ? 0 : 4 }}
-              whileTap={{ scale: 0.97 }}
-              title={collapsedMode ? item.label : undefined}
-              className={`w-full flex items-center ${
-                collapsedMode ? 'justify-center p-3' : 'gap-3 px-4 py-3'
-              } rounded-2xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                isActive
-                  ? 'bg-gradient-to-r from-indigo-600/30 to-purple-600/30 text-purple-300 border border-purple-500/30 shadow-md'
-                  : item.highlight
-                  ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-              }`}
-            >
-              <Icon className={`w-4 h-4 flex-shrink-0 ${isActive || item.highlight ? 'text-purple-400' : 'text-slate-400'}`} />
-              {!collapsedMode && <span className="truncate">{item.label}</span>}
-              {isActive && !collapsedMode && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className="ml-auto w-2 h-2 rounded-full bg-purple-400 shadow-sm shadow-purple-400 flex-shrink-0"
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                />
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
+          {NAV_GROUPS.map(group => (
+            <div key={group.label}>
+              {!isCollapsed && (
+                <p className={`text-[10px] font-semibold uppercase tracking-wider px-2 mb-1 ${groupLbl}`}>
+                  {group.label}
+                </p>
               )}
-            </motion.button>
-          );
-        })}
-      </nav>
+              <div className="space-y-0.5">
+                {group.items.map(item => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.key;
+                  return (
+                    <motion.button
+                      key={item.key}
+                      onClick={() => handleNav(item.key)}
+                      whileTap={{ scale: 0.98 }}
+                      title={isCollapsed ? item.label : undefined}
+                      className={`w-full flex items-center ${
+                        isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-2.5 px-2 py-2'
+                      } rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                        isActive ? activeBg : `${text} ${hoverBg}`
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-amber-500' : ''}`} />
+                      {!isCollapsed && (
+                        <span className="truncate">{item.label}</span>
+                      )}
+                      {isActive && !isCollapsed && (
+                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-500 flex-shrink-0" />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
 
-      {/* Footer / Logout */}
-      <div className="px-2.5 pb-5 border-t border-white/5 pt-4">
-        <motion.button
-          onClick={onLogout}
-          whileHover={{ x: collapsedMode ? 0 : 4 }}
-          whileTap={{ scale: 0.97 }}
-          title={collapsedMode ? 'Logout' : undefined}
-          className={`w-full flex items-center ${
-            collapsedMode ? 'justify-center p-3' : 'gap-3 px-4 py-3'
-          } rounded-2xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition-all duration-200 cursor-pointer`}
-        >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
-          {!collapsedMode && <span>Logout</span>}
-        </motion.button>
+        {/* Help + Logout footer */}
+        <div className={`border-t ${divider} px-2 py-3 space-y-0.5 flex-shrink-0`}>
+          <button
+            title={isCollapsed ? 'Help' : undefined}
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-2.5 px-2 py-2'
+            } rounded-lg text-xs font-medium transition-colors cursor-pointer ${text} ${hoverBg}`}
+          >
+            <HelpCircle className="w-4 h-4 flex-shrink-0" />
+            {!isCollapsed && <span>Help & Support</span>}
+          </button>
+
+          <button
+            onClick={onLogout}
+            title={isCollapsed ? 'Logout' : undefined}
+            className={`w-full flex items-center ${
+              isCollapsed ? 'justify-center px-2 py-2.5' : 'gap-2.5 px-2 py-2'
+            } rounded-lg text-xs font-medium transition-colors cursor-pointer text-rose-500 hover:bg-rose-500/10`}
+          >
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            {!isCollapsed && <span>Logout</span>}
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-3.5 left-4 z-50 p-2 rounded-xl bg-slate-800/80 backdrop-blur-sm text-slate-300 hover:text-white border border-white/10"
+        className="lg:hidden fixed top-3.5 left-4 z-50 p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400"
         aria-label="Open sidebar"
       >
-        <Menu className="w-5 h-5" />
+        <Menu className="w-4 h-4" />
       </button>
 
-      {/* Desktop sidebar with minimize animation */}
+      {/* Desktop sidebar */}
       <aside
-        className={`hidden lg:flex flex-shrink-0 bg-slate-900/60 backdrop-blur-xl border-r border-white/10 flex-col fixed inset-y-0 left-0 z-40 transition-all duration-300 ${
-          isCollapsed ? 'w-20' : 'w-64'
-        }`}
+        className={`
+          hidden lg:flex flex-col flex-shrink-0
+          border-r ${border} ${bg}
+          h-screen sticky top-0
+          overflow-hidden
+          transition-all duration-300 ease-in-out
+          ${collapsed ? 'w-[60px]' : 'w-[240px]'}
+        `}
       >
-        {sidebarContent(isCollapsed)}
+        {content()}
       </aside>
 
-      {/* Mobile overlay sidebar */}
+      {/* Mobile overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+              className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
             />
             <motion.aside
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="lg:hidden fixed inset-y-0 left-0 w-64 bg-slate-900 border-r border-white/10 z-50 flex flex-col"
+              initial={{ x: -260 }} animate={{ x: 0 }} exit={{ x: -260 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+              className={`lg:hidden fixed inset-y-0 left-0 w-[240px] z-50 flex flex-col border-r ${border} ${bg}`}
             >
               <button
                 onClick={() => setMobileOpen(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-white"
-                aria-label="Close sidebar"
+                className="absolute top-3 right-3 p-1.5 rounded-md text-zinc-400 hover:text-zinc-200"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
-              {sidebarContent(false)}
+              {content(true)}
             </motion.aside>
           </>
         )}

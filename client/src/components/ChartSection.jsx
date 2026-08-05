@@ -1,33 +1,33 @@
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useTheme } from '../contexts/ThemeContext';
 
-/* Sample data for the revenue chart */
+/* Registration & volunteer growth data */
 const data = [
-  { name: 'Jan', revenue: 4000, users: 2400 },
-  { name: 'Feb', revenue: 3000, users: 1398 },
-  { name: 'Mar', revenue: 5000, users: 3800 },
-  { name: 'Apr', revenue: 4780, users: 3908 },
-  { name: 'May', revenue: 5890, users: 4800 },
-  { name: 'Jun', revenue: 6390, users: 3800 },
-  { name: 'Jul', revenue: 7490, users: 4300 },
-  { name: 'Aug', revenue: 8200, users: 5100 },
-  { name: 'Sep', revenue: 7800, users: 4900 },
-  { name: 'Oct', revenue: 9100, users: 5600 },
-  { name: 'Nov', revenue: 8700, users: 5200 },
-  { name: 'Dec', revenue: 10200, users: 6100 },
+  { name: 'Jan', registrations: 820, volunteers: 140 },
+  { name: 'Feb', registrations: 1040, volunteers: 175 },
+  { name: 'Mar', registrations: 950, volunteers: 160 },
+  { name: 'Apr', registrations: 1380, volunteers: 210 },
+  { name: 'May', registrations: 1650, volunteers: 255 },
+  { name: 'Jun', registrations: 1480, volunteers: 238 },
+  { name: 'Jul', registrations: 1820, volunteers: 290 },
+  { name: 'Aug', registrations: 2100, volunteers: 340 },
+  { name: 'Sep', registrations: 1950, volunteers: 310 },
+  { name: 'Oct', registrations: 2380, volunteers: 380 },
+  { name: 'Nov', registrations: 2200, volunteers: 350 },
+  { name: 'Dec', registrations: 2760, volunteers: 430 },
 ];
 
-/**
- * Custom tooltip for the area chart with a glassmorphic dark style.
- */
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, isDark }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-800/90 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 shadow-xl">
-        <p className="text-slate-400 text-xs font-medium mb-1">{label}</p>
+      <div className={`rounded-xl border px-4 py-3 shadow-xl text-xs backdrop-blur-sm ${
+        isDark ? 'bg-zinc-900 border-zinc-700' : 'bg-white border-zinc-200 shadow-zinc-200/40'
+      }`}>
+        <p className={`font-semibold mb-1.5 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>{label}</p>
         {payload.map((entry, i) => (
-          <p key={i} className="text-sm font-semibold" style={{ color: entry.color }}>
-            {entry.name}: ${entry.value.toLocaleString()}
+          <p key={i} className="font-medium" style={{ color: entry.color }}>
+            {entry.name}: <strong>{entry.value.toLocaleString()}</strong>
           </p>
         ))}
       </div>
@@ -37,43 +37,80 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function ChartSection() {
+  const { isDark } = useTheme();
+
+  const surface = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
+  const textPri = isDark ? 'text-zinc-100' : 'text-zinc-900';
+  const textMut = isDark ? 'text-zinc-400' : 'text-zinc-500';
+  const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)';
+  const tickColor = isDark ? '#52525b' : '#a1a1aa';
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 p-6 backdrop-blur-sm"
+      transition={{ duration: 0.35, delay: 0.15 }}
+      className={`rounded-xl border ${surface} p-5 h-full`}
     >
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-5">
         <div>
-          <h3 className="text-lg font-semibold text-white">Revenue Overview</h3>
-          <p className="text-sm text-slate-400 mt-1">Monthly revenue and user growth</p>
+          <h3 className={`text-sm font-semibold ${textPri}`}>Registration Trend</h3>
+          <p className={`text-xs mt-0.5 ${textMut}`}>Monthly event registrations & volunteer growth</p>
         </div>
         <div className="flex gap-4 text-xs">
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500" /> Revenue</span>
-          <span className="flex items-center gap-1.5 text-slate-400"><span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Users</span>
+          <span className={`flex items-center gap-1.5 ${textMut}`}>
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" />
+            Registrations
+          </span>
+          <span className={`flex items-center gap-1.5 ${textMut}`}>
+            <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 flex-shrink-0" />
+            Volunteers
+          </span>
         </div>
       </div>
 
-      <div className="w-full h-[320px]">
+      <div className="w-full h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+          <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
             <defs>
-              <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+              <linearGradient id="regGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.2} />
+                <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
               </linearGradient>
-              <linearGradient id="usersGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#a855f7" stopOpacity={0.2} />
-                <stop offset="100%" stopColor="#a855f7" stopOpacity={0} />
+              <linearGradient id="volGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#818cf8" stopOpacity={0.15} />
+                <stop offset="100%" stopColor="#818cf8" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-            <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={2.5} fill="url(#revenueGradient)" name="Revenue" />
-            <Area type="monotone" dataKey="users" stroke="#a855f7" strokeWidth={2} fill="url(#usersGradient)" name="Users" />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: tickColor, fontSize: 11 }}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: tickColor, fontSize: 11 }}
+            />
+            <Tooltip content={<CustomTooltip isDark={isDark} />} />
+            <Area
+              type="monotone"
+              dataKey="registrations"
+              stroke="#f59e0b"
+              strokeWidth={2}
+              fill="url(#regGradient)"
+              name="Registrations"
+            />
+            <Area
+              type="monotone"
+              dataKey="volunteers"
+              stroke="#818cf8"
+              strokeWidth={2}
+              fill="url(#volGradient)"
+              name="Volunteers"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
