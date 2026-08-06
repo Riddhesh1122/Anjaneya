@@ -205,7 +205,7 @@ function Hero({ onNavigate }: { onNavigate: () => void }) {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-bold mb-6 backdrop-blur-sm"
         >
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          Anjaneya Hackathon 2026 — AI Platform
+          Anjaneya Hackathon 2026 — Platform
           <Sparkles className="w-3.5 h-3.5" />
         </motion.div>
 
@@ -219,7 +219,7 @@ function Hero({ onNavigate }: { onNavigate: () => void }) {
         >
           Anjaneya <br />
           <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-indigo-400 bg-clip-text text-transparent">
-            AI-Powered Event & Volunteer Management
+            Event & Volunteer Management
           </span>
         </motion.h1>
 

@@ -107,7 +107,7 @@ export default function LoginPage() {
           <Logo size="xl" showText={true} />
         </div>
         <p className={`text-xs font-medium max-w-sm mx-auto ${textMuted}`}>
-          Centralized Event & Volunteer Management AI Platform
+          Centralized Event & Volunteer Management Platform
         </p>
       </motion.div>
 
@@ -126,7 +126,7 @@ export default function LoginPage() {
           </h2>
           <p className={`text-xs mt-1 ${textMuted}`}>
             {isSignUp
-              ? 'Get started with AI-driven event management'
+              ? 'Get started with event management'
               : 'Sign in to access your Anjaneya dashboard'}
           </p>
         </motion.div>
