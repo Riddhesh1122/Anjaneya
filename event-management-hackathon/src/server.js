@@ -30,12 +30,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/login.html'));
-});
-
 // Start server
-const PORT = process.env.PORT || 5000;
+// Default matches .env.example and the frontend's VITE_API_URL fallback
+// (src/services/api.ts) so the two projects talk to each other out of the box.
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
