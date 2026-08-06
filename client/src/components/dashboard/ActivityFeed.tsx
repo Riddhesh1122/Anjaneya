@@ -20,16 +20,16 @@ export default function ActivityFeed() {
   const lineBg = isDark ? 'bg-zinc-800' : 'bg-zinc-200';
 
   return (
-    <div className={`rounded-xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
+    <div className={`rounded-2xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
       <div>
         {/* Header */}
-        <div className={`px-5 py-4 border-b ${divider}`}>
-          <h3 className={`text-base font-bold ${textPrimary}`}>Recent Platform Activity</h3>
+        <div className={`px-6 py-4.5 border-b ${divider}`}>
+          <h3 className={`text-base font-extrabold ${textPrimary}`}>Recent Platform Activity</h3>
           <p className={`text-xs font-medium mt-0.5 ${textSub}`}>Live platform event stream & user updates</p>
         </div>
 
         {/* Timeline */}
-        <div className="px-5 py-4 space-y-1">
+        <div className="px-6 py-4 space-y-1">
           {feed.map((item, i) => (
             <motion.div
               key={item.id}
@@ -41,7 +41,7 @@ export default function ActivityFeed() {
               {/* Timeline spine */}
               <div className="flex flex-col items-center">
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-md"
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black flex-shrink-0 shadow-md"
                   style={{ background: item.color }}
                 >
                   {item.initials}
@@ -52,11 +52,11 @@ export default function ActivityFeed() {
               {/* Content */}
               <div className="pb-4 flex-1 min-w-0">
                 <p className={`text-sm leading-relaxed ${textPrimary}`}>
-                  <strong className="font-bold">{item.name}</strong>
+                  <strong className="font-extrabold">{item.name}</strong>
                   {' '}{item.action}{' '}
-                  <span className="text-amber-500 font-bold">{item.target}</span>
+                  <span className="text-amber-500 font-extrabold">{item.target}</span>
                 </p>
-                <p className={`text-xs font-medium mt-0.5 ${textSub}`}>{item.time}</p>
+                <p className={`text-xs font-semibold mt-0.5 ${textSub}`}>{item.time}</p>
               </div>
             </motion.div>
           ))}

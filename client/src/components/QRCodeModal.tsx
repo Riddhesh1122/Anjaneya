@@ -23,7 +23,12 @@ export default function QRCodeModal({ isOpen, onClose, event, attendeeName = 'De
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="qr-modal-title"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+      >
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -37,7 +42,8 @@ export default function QRCodeModal({ isOpen, onClose, event, attendeeName = 'De
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors z-10"
+            aria-label="Close QR Ticket Modal"
+            className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition-colors z-10 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>

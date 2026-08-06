@@ -40,15 +40,15 @@ export default function AIWidget({ onLaunchAI, onVolunteerMatch }: AIWidgetProps
   const tagBg = isDark ? 'bg-zinc-800 text-zinc-300 border-zinc-700' : 'bg-zinc-100 text-zinc-800 border-zinc-200';
 
   return (
-    <div className={`rounded-xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
+    <div className={`rounded-2xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
       <div>
         {/* Header */}
-        <div className={`px-5 py-4 border-b ${divider} flex items-center gap-3`}>
-          <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+        <div className={`px-6 py-4.5 border-b ${divider} flex items-center gap-3`}>
+          <div className="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shadow-sm shadow-amber-500/20">
             <Sparkles className="w-4 h-4 text-amber-500" />
           </div>
           <div>
-            <h3 className={`text-base font-bold ${textPrimary}`}>AI Assistant Copilot</h3>
+            <h3 className={`text-base font-extrabold ${textPrimary}`}>AI Assistant Copilot</h3>
             <p className={`text-xs font-medium ${textSub}`}>Powered by Gemini · GPT-4o · Groq</p>
           </div>
         </div>
@@ -64,13 +64,13 @@ export default function AIWidget({ onLaunchAI, onVolunteerMatch }: AIWidgetProps
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.08 }}
                 onClick={s.label.includes('volunteer') ? onVolunteerMatch : onLaunchAI}
-                className={`w-full px-5 py-4 flex items-center gap-3 text-left transition-colors cursor-pointer ${rowHover}`}
+                className={`w-full px-6 py-4 flex items-center gap-3 text-left transition-colors cursor-pointer ${rowHover}`}
               >
-                <div className={`p-2 rounded-lg flex-shrink-0 ${isDark ? 'bg-zinc-800' : 'bg-zinc-100'}`}>
+                <div className={`p-2.5 rounded-xl flex-shrink-0 ${isDark ? 'bg-zinc-800/80 border border-zinc-700/60' : 'bg-zinc-100 border border-zinc-200'}`}>
                   <Icon className={`w-4 h-4 ${s.color}`} />
                 </div>
-                <span className={`text-sm font-semibold flex-1 leading-snug ${textPrimary}`}>{s.label}</span>
-                <span className={`text-xs font-bold px-2.5 py-1 rounded-full border flex-shrink-0 ${tagBg}`}>
+                <span className={`text-sm font-bold flex-1 leading-snug ${textPrimary}`}>{s.label}</span>
+                <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-full border flex-shrink-0 ${tagBg}`}>
                   {s.tag}
                 </span>
               </motion.button>
@@ -80,12 +80,12 @@ export default function AIWidget({ onLaunchAI, onVolunteerMatch }: AIWidgetProps
       </div>
 
       {/* CTA */}
-      <div className={`px-5 py-4 border-t ${divider}`}>
+      <div className={`px-6 py-4.5 border-t ${divider}`}>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           onClick={onLaunchAI}
-          className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-amber-500/20"
+          className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs sm:text-sm font-black flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-amber-500/25 ring-2 ring-amber-500/30"
         >
           <Sparkles className="w-4 h-4 text-zinc-950" />
           Open AI Studio & Copilot

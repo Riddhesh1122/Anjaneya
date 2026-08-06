@@ -26,21 +26,21 @@ export default function VolunteerPanel() {
   const tagBg = isDark ? 'bg-zinc-800 text-zinc-300 border-zinc-700' : 'bg-zinc-100 text-zinc-800 border-zinc-200';
 
   return (
-    <div className={`rounded-xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
+    <div className={`rounded-2xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
       <div>
         {/* Header */}
-        <div className={`px-5 py-4 border-b ${divider} flex items-center justify-between`}>
+        <div className={`px-6 py-4.5 border-b ${divider} flex items-center justify-between`}>
           <div>
-            <h3 className={`text-base font-bold ${textPrimary}`}>Top Volunteers</h3>
+            <h3 className={`text-base font-extrabold ${textPrimary}`}>Top Volunteers</h3>
             <p className={`text-xs font-medium mt-0.5 ${textSub}`}>AI match score & performance</p>
           </div>
-          <button className="text-xs text-amber-500 font-bold hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer">
+          <button className="text-xs text-amber-500 font-extrabold hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer">
             All <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Volunteer list */}
-        <div className="p-5 space-y-4">
+        <div className="p-6 space-y-4">
           {volunteers.map((vol, i) => (
             <motion.div
               key={vol.name}
@@ -52,13 +52,13 @@ export default function VolunteerPanel() {
                 {/* Rank + Avatar */}
                 <div className="relative flex-shrink-0">
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md"
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-black shadow-md"
                     style={{ background: vol.color }}
                   >
                     {vol.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black text-white ${
-                    i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-zinc-500' : 'bg-orange-700'
+                    i === 0 ? 'bg-amber-500 shadow-sm shadow-amber-500/50' : i === 1 ? 'bg-zinc-500' : 'bg-orange-700'
                   }`}>
                     {i + 1}
                   </div>
@@ -67,12 +67,12 @@ export default function VolunteerPanel() {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className={`text-sm font-bold truncate ${textPrimary}`}>{vol.name}</p>
-                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${statusStyle[vol.status]}`}>
+                    <p className={`text-sm font-extrabold truncate ${textPrimary}`}>{vol.name}</p>
+                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${statusStyle[vol.status]}`}>
                       {vol.status}
                     </span>
                   </div>
-                  <p className={`text-xs font-medium truncate ${textMuted}`}>{vol.role}</p>
+                  <p className={`text-xs font-semibold truncate ${textMuted}`}>{vol.role}</p>
                 </div>
               </div>
 
@@ -87,13 +87,13 @@ export default function VolunteerPanel() {
                     style={{ background: vol.color }}
                   />
                 </div>
-                <span className={`text-xs font-bold ${textMuted} w-10 text-right`}>{vol.score}%</span>
+                <span className={`text-xs font-black ${textMuted} w-10 text-right`}>{vol.score}%</span>
               </div>
 
               {/* Skills */}
-              <div className="flex gap-1.5 mt-2">
+              <div className="flex flex-wrap gap-1.5 mt-2">
                 {vol.skills.map(s => (
-                  <span key={s} className={`text-xs font-semibold px-2 py-0.5 rounded border ${tagBg}`}>{s}</span>
+                  <span key={s} className={`text-[11px] font-bold px-2 py-0.5 rounded border ${tagBg}`}>{s}</span>
                 ))}
               </div>
             </motion.div>

@@ -144,26 +144,35 @@ export default function AIGeneratorModal({
   const textMut = isDark ? 'text-zinc-400' : 'text-zinc-500';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="ai-generator-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
-        className={`w-full max-w-4xl rounded-2xl border ${cardBg} my-8 overflow-hidden flex flex-col max-h-[90vh]`}
+        className={`w-full max-w-4xl rounded-2xl border ${cardBg} my-8 overflow-hidden flex flex-col max-h-[90vh] shadow-2xl`}
       >
         {/* Header */}
         <div className={`px-6 py-4 border-b ${isDark ? 'border-zinc-800' : 'border-zinc-200'} flex items-center justify-between`}>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center text-zinc-950">
+            <div className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center text-zinc-950 shadow-sm shadow-amber-500/20">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h3 className={`text-base font-bold ${textPri}`}>Anjaneya AI Generator Studio</h3>
-              <p className={`text-xs ${textMut}`}>Select an AI Copilot generator tool below</p>
+              <h3 id="ai-generator-modal-title" className={`text-base font-extrabold ${textPri}`}>Anjaneya AI Generator Studio</h3>
+              <p className={`text-xs font-medium ${textMut}`}>Select an AI Copilot generator tool below</p>
             </div>
           </div>
 
-          <button onClick={onClose} className={`p-1.5 rounded-lg transition-colors cursor-pointer ${textMut} hover:${textPri}`}>
+          <button
+            onClick={onClose}
+            aria-label="Close AI Generator Studio"
+            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${textMut} hover:${textPri}`}
+          >
             <X className="w-4 h-4" />
           </button>
         </div>

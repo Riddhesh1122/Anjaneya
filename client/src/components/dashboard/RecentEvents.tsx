@@ -41,15 +41,15 @@ export default function RecentEvents({ events, onViewDetails, onGetQR }: RecentE
   const divider = isDark ? 'border-zinc-800' : 'border-zinc-100';
 
   return (
-    <div className={`rounded-xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
+    <div className={`rounded-2xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
       <div>
         {/* Header */}
-        <div className={`px-5 py-4 border-b ${divider} flex items-center justify-between`}>
+        <div className={`px-6 py-4.5 border-b ${divider} flex items-center justify-between`}>
           <div>
-            <h3 className={`text-base font-bold ${textPrimary}`}>Recent Events</h3>
+            <h3 className={`text-base font-extrabold ${textPrimary}`}>Recent Events</h3>
             <p className={`text-xs font-medium mt-0.5 ${textSub}`}>{events.length} active events on platform</p>
           </div>
-          <button className="text-xs text-amber-500 font-bold hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer">
+          <button className="text-xs text-amber-500 font-extrabold hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -66,28 +66,28 @@ export default function RecentEvents({ events, onViewDetails, onGetQR }: RecentE
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.06 }}
-                className={`px-5 py-4 group transition-all cursor-pointer ${hoverBorder} ${isDark ? 'hover:bg-zinc-800/50' : 'hover:bg-zinc-50'}`}
+                className={`px-6 py-4 group transition-all cursor-pointer ${hoverBorder} ${isDark ? 'hover:bg-zinc-800/50' : 'hover:bg-zinc-50'}`}
                 onClick={() => onViewDetails(ev)}
               >
                 <div className="flex items-start gap-3">
                   <div className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${
-                    i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-violet-500' : 'bg-emerald-500'
+                    i === 0 ? 'bg-amber-500 shadow-sm shadow-amber-500/50' : i === 1 ? 'bg-violet-500' : 'bg-emerald-500'
                   }`} />
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className={`text-sm font-bold truncate ${textPrimary}`}>{ev.title}</p>
-                      <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ${catColor}`}>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <p className={`text-sm font-extrabold truncate ${textPrimary}`}>{ev.title}</p>
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ${catColor}`}>
                         {ev.category}
                       </span>
                     </div>
 
-                    <div className={`flex items-center gap-4 text-xs font-medium ${textMuted} mb-2`}>
+                    <div className={`flex flex-wrap items-center gap-3 text-xs font-medium ${textMuted} mb-2`}>
                       <span className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-amber-500" />{ev.date}
                       </span>
-                      <span className="flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-indigo-400" />{ev.location.split('/')[0].trim()}
+                      <span className="flex items-center gap-1.5 truncate">
+                        <MapPin className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />{ev.location.split('/')[0].trim()}
                       </span>
                     </div>
 

@@ -68,33 +68,34 @@ export default function TopNavbar({
   const activeRole = roles.find(r => r.id === currentRole) || roles[2];
 
   return (
-    <header className={`sticky top-0 z-30 border-b ${bg} backdrop-blur-xl`}>
-      <div className="flex items-center h-16 px-4 lg:px-6 gap-4">
+    <header className={`sticky top-0 z-30 border-b ${bg} backdrop-blur-xl transition-colors duration-200`}>
+      <div className="flex items-center h-16 px-4 lg:px-6 gap-3 sm:gap-4 justify-between">
 
-        {/* Search */}
-        <div className="flex-1 max-w-lg ml-10 lg:ml-0">
+        {/* Search Input */}
+        <div className="flex-1 max-w-md ml-10 lg:ml-0">
           <div className="relative">
             <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${text}`} />
             <input
               type="text"
               value={searchQuery}
               onChange={e => onSearchChange?.(e.target.value)}
-              placeholder="Search events, volunteers... (AI smart search)"
-              className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/60 ${inputBg}`}
+              placeholder="Search events, volunteers... (AI search)"
+              aria-label="Smart AI Search"
+              className={`w-full pl-10 pr-4 py-2 rounded-xl border text-xs sm:text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 ${inputBg}`}
             />
           </div>
         </div>
 
-        {/* Right actions */}
-        <div className="flex items-center gap-2 ml-auto">
+        {/* Right Action Bar */}
+        <div className="flex items-center gap-2 flex-shrink-0">
 
           {/* Theme Toggle */}
           <motion.button
             whileTap={{ scale: 0.92 }}
             onClick={toggleTheme}
             title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            className={`p-2.5 rounded-xl border transition-all cursor-pointer ${btnBg}`}
-            aria-label="Toggle theme"
+            className={`p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer ${btnBg}`}
+            aria-label="Toggle dark/light color theme"
           >
             {isDark
               ? <Sun className="w-4 h-4 text-amber-400" />
@@ -106,7 +107,8 @@ export default function TopNavbar({
             <motion.button
               whileTap={{ scale: 0.96 }}
               onClick={() => setShowRoleSelector(!showRoleSelector)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold transition-all cursor-pointer ${btnBg}`}
+              aria-label="Change user role"
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer ${btnBg}`}
             >
               <activeRole.icon className={`w-4 h-4 ${activeRole.color}`} />
               <span className="hidden sm:inline">{activeRole.name}</span>
