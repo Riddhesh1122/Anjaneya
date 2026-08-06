@@ -73,7 +73,7 @@ export default function Logo({
             ANJANEYA
           </span>
           <span className="text-[9px] font-bold tracking-wider text-amber-500/80 uppercase truncate">
-            Event & Volunteer AI
+            Event & Volunteer Platform
           </span>
         </div>
       )}

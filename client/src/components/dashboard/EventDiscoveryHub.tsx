@@ -100,7 +100,7 @@ export default function EventDiscoveryHub({ events, onViewDetails, onGetQR, onCr
                   onClick={onCreateEvent}
                   leftIcon={<Sparkles className="w-4 h-4 text-amber-500" />}
                 >
-                  AI Event Creator
+                  Event Creator
                 </Button>
               </>
             )}
@@ -213,7 +213,7 @@ export default function EventDiscoveryHub({ events, onViewDetails, onGetQR, onCr
                 <Plus className="w-6 h-6 stroke-[3]" />
               </div>
               <h3 className={`text-base font-extrabold mb-1 ${textPri} group-hover:text-amber-500 transition-colors`}>Create New Event</h3>
-              <p className={`text-xs max-w-xs leading-relaxed ${textSub}`}>Launch AI event creator to auto-generate title, agenda, rules & FAQs.</p>
+              <p className={`text-xs max-w-xs leading-relaxed ${textSub}`}>Launch event creator to generate title, agenda, rules & FAQs.</p>
             </motion.div>
           )}
 

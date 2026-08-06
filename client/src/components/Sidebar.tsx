@@ -24,9 +24,9 @@ const NAV_GROUPS = [
     ],
   },
   {
-    label: 'AI & Copilot',
+    label: 'Studio & Copilot',
     items: [
-      { key: 'ai-studio',  label: 'AI Studio',   icon: Sparkles   },
+      { key: 'ai-studio',  label: 'Studio Hub',  icon: Sparkles   },
       { key: 'analytics',  label: 'Analytics',   icon: BarChart2  },
     ],
   },
