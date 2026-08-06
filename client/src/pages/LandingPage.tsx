@@ -528,17 +528,17 @@ function Features() {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <AnimatedSection>
-          <motion.div variants={fadeUp} className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-4">
+          <motion.div variants={fadeUp} className="text-center mb-16 flex flex-col items-center justify-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-4 mx-auto">
               <Layers className="w-3.5 h-3.5" /> Platform Features
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight text-center">
               Everything you need to run{' '}
               <span className="bg-gradient-to-r from-amber-400 to-indigo-400 bg-clip-text text-transparent">
                 flawless events
               </span>
             </h2>
-            <p className="text-slate-400 text-lg mt-4 max-w-2xl mx-auto">
+            <p className="text-slate-400 text-lg mt-4 max-w-2xl mx-auto text-center leading-relaxed">
               Purpose-built tools for every stakeholder — from organizers setting up the stage to volunteers checking in attendees.
             </p>
           </motion.div>
@@ -551,26 +551,26 @@ function Features() {
                 variants={scaleIn}
                 custom={i}
                 whileHover={{ y: -6, transition: { duration: 0.25 } }}
-                className="group h-full p-6 rounded-3xl bg-slate-900/70 border border-slate-800 hover:border-amber-500/30 backdrop-blur-sm relative overflow-hidden transition-all cursor-default"
+                className="group h-full p-6 rounded-3xl bg-slate-900/70 border border-slate-800 hover:border-amber-500/30 backdrop-blur-sm relative overflow-hidden transition-all cursor-default flex flex-col items-center text-center justify-between"
               >
                 {/* Hover glow */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-amber-500/5 to-indigo-600/5" />
 
-                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center mb-4 border ${f.bg}`}>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 border mx-auto ${f.bg}`}>
                   <f.icon className={`w-5 h-5 ${f.color}`} />
                 </div>
 
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <h3 className="font-bold text-white text-base leading-snug group-hover:text-amber-400 transition-colors">
-                    {f.title}
-                  </h3>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap flex-shrink-0">
+                <div className="flex flex-col items-center gap-1.5 mb-3 w-full">
+                  <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap">
                     {f.pill}
                   </span>
+                  <h3 className="font-bold text-white text-base leading-snug group-hover:text-amber-400 transition-colors text-center">
+                    {f.title}
+                  </h3>
                 </div>
-                <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
+                <p className="text-sm text-slate-400 leading-relaxed text-center mb-4">{f.desc}</p>
 
-                <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-slate-600 group-hover:text-amber-400 transition-colors">
+                <div className="mt-auto flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-500 group-hover:text-amber-400 transition-colors">
                   <span>Learn more</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -619,40 +619,45 @@ function AIFeatures() {
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-950/20 to-transparent" />
-        <div className="absolute top-1/2 left-1/4 w-[600px] h-[400px] -translate-y-1/2 bg-indigo-600/8 blur-[120px] rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-indigo-600/8 blur-[120px] rounded-full" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left: Text */}
-          <AnimatedSection>
-            <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4">
+        {/* Centered Section Header */}
+        <AnimatedSection>
+          <motion.div variants={fadeUp} custom={0} className="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center justify-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 mx-auto">
               <Cpu className="w-3.5 h-3.5" /> AI Suite
-            </motion.div>
-            <motion.h2 variants={fadeUp} custom={1} className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4">
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-4 text-center">
               AI that actually{' '}
               <span className="bg-gradient-to-r from-indigo-400 to-amber-400 bg-clip-text text-transparent">
                 does the work
               </span>
-            </motion.h2>
-            <motion.p variants={fadeUp} custom={2} className="text-slate-400 text-lg leading-relaxed mb-8">
+            </h2>
+            <p className="text-slate-400 text-lg leading-relaxed text-center max-w-2xl mx-auto">
               Backed by multi-LLM routing — Gemini, OpenAI, Groq, and Pollinations — Anjaneya's AI adapts to your workflow, not the other way around.
-            </motion.p>
+            </p>
+          </motion.div>
+        </AnimatedSection>
 
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: AI Capabilities */}
+          <AnimatedSection>
             <div className="space-y-4">
               {aiFeatures.map((f, i) => (
                 <motion.div
                   key={f.title}
                   variants={fadeUp}
-                  custom={i + 3}
-                  whileHover={{ x: 6 }}
-                  className="flex items-start gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-indigo-500/30 transition-all group cursor-default"
+                  custom={i + 1}
+                  whileHover={{ y: -2 }}
+                  className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-indigo-500/30 transition-all group cursor-default"
                 >
-                  <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex-shrink-0">
-                    <f.icon className="w-4 h-4 text-indigo-400" />
+                  <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex-shrink-0">
+                    <f.icon className="w-5 h-5 text-indigo-400" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
                       <span className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">{f.title}</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-medium">{f.badge}</span>
                     </div>
@@ -668,16 +673,16 @@ function AIFeatures() {
             <motion.div
               variants={scaleIn}
               custom={0}
-              className="relative rounded-3xl bg-slate-900/80 border border-slate-800 overflow-hidden backdrop-blur-xl shadow-2xl shadow-slate-950/60"
+              className="relative rounded-3xl bg-slate-900/80 border border-slate-800 overflow-hidden backdrop-blur-xl shadow-2xl shadow-slate-950/60 mx-auto max-w-lg lg:max-w-none"
             >
               {/* Header */}
-              <div className="px-5 py-4 border-b border-slate-800 flex items-center gap-3 bg-slate-950/50">
+              <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-center gap-3 bg-slate-950/50">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-indigo-600 flex items-center justify-center">
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
-                <div>
+                <div className="text-center">
                   <div className="text-xs font-bold text-white">Anjaneya AI Assistant</div>
-                  <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                  <div className="text-[10px] text-emerald-400 flex items-center justify-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" /> Online
                   </div>
                 </div>
@@ -685,13 +690,13 @@ function AIFeatures() {
               {/* Chat messages */}
               <div className="p-5 space-y-4 min-h-[340px]">
                 {/* User */}
-                <div className="flex justify-end">
-                  <div className="max-w-xs px-4 py-2.5 rounded-2xl rounded-tr-sm bg-gradient-to-r from-amber-500 to-indigo-600 text-white text-sm">
+                <div className="flex justify-center sm:justify-end">
+                  <div className="max-w-xs px-4 py-2.5 rounded-2xl rounded-tr-sm bg-gradient-to-r from-amber-500 to-indigo-600 text-white text-sm text-center sm:text-right">
                     Generate a tech hackathon event for 200 participants next Saturday
                   </div>
                 </div>
                 {/* AI */}
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 justify-center sm:justify-start">
                   <div className="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
                   </div>
@@ -702,14 +707,14 @@ function AIFeatures() {
                     <p><strong className="text-slate-300">Capacity:</strong> 200 participants · 12 judges</p>
                     <p><strong className="text-slate-300">Volunteers needed:</strong> 18 roles matched</p>
                     <p><strong className="text-slate-300">Budget estimate:</strong> ₹68,000</p>
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex justify-center gap-2 mt-3">
                       <button className="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 text-xs font-bold">Publish Event</button>
                       <button className="px-3 py-1.5 rounded-lg bg-slate-700 text-slate-300 text-xs">Edit Draft</button>
                     </div>
                   </div>
                 </div>
                 {/* Typing indicator */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center sm:justify-start gap-3">
                   <div className="w-7 h-7 rounded-lg bg-indigo-600/30 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
                   </div>
@@ -731,7 +736,7 @@ function AIFeatures() {
                   <input
                     readOnly
                     placeholder="Ask Anjaneya AI anything..."
-                    className="flex-1 bg-transparent text-xs text-slate-400 placeholder-slate-600 outline-none"
+                    className="flex-1 bg-transparent text-xs text-slate-400 placeholder-slate-600 outline-none text-center sm:text-left"
                   />
                   <button className="p-2 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600">
                     <ArrowRight className="w-3.5 h-3.5 text-white" />
@@ -1069,12 +1074,7 @@ function Footer() {
           {/* Brand col */}
           <div className="col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-indigo-600 flex items-center justify-center text-white font-black text-base shadow-lg shadow-amber-500/25">
-                A
-              </div>
-              <span className="text-base font-extrabold bg-gradient-to-r from-amber-400 to-indigo-400 bg-clip-text text-transparent">
-                Anjaneya
-              </span>
+              <Logo size="md" />
             </div>
             <p className="text-xs text-slate-500 leading-relaxed mb-4 max-w-[200px]">
               AI-powered event & volunteer management platform for modern organizers.
