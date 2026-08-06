@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Filter, Calendar, MapPin, Users, QrCode, ArrowRight, Grid, List,
-  Sparkles, Ticket, Shield, CheckCircle2, RefreshCw, X, Award
+  Sparkles, Ticket, Shield, CheckCircle2, RefreshCw, X, Award, Plus
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { Button } from '../ui/Button';
 import EventCalendar from './EventCalendar';
 
 interface Event {
@@ -27,9 +28,10 @@ interface EventDiscoveryHubProps {
   events: Event[];
   onViewDetails: (ev: Event) => void;
   onGetQR: (ev: Event) => void;
+  onCreateEvent?: () => void;
 }
 
-export default function EventDiscoveryHub({ events, onViewDetails, onGetQR }: EventDiscoveryHubProps) {
+export default function EventDiscoveryHub({ events, onViewDetails, onGetQR, onCreateEvent }: EventDiscoveryHubProps) {
   const { isDark } = useTheme();
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'calendar'>('grid');
@@ -77,11 +79,32 @@ export default function EventDiscoveryHub({ events, onViewDetails, onGetQR }: Ev
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className={`text-2xl font-black ${textPri}`}>Advanced Event Discovery</h1>
-            <p className={`text-xs font-medium ${textSub}`}>Search, filter, sort, and view platform events in grid or calendar views</p>
+            <p className={`text-xs font-medium ${textSub}`}>Search, filter, sort, publish, and view platform events in grid or calendar views</p>
           </div>
 
-          {/* View Switcher Controls */}
-          <div className="flex items-center gap-2">
+          {/* Action Buttons & View Switcher Controls */}
+          <div className="flex flex-wrap items-center gap-2">
+            {onCreateEvent && (
+              <>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={onCreateEvent}
+                  leftIcon={<Plus className="w-4 h-4 text-zinc-950" />}
+                >
+                  Create Event
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onCreateEvent}
+                  leftIcon={<Sparkles className="w-4 h-4 text-amber-500" />}
+                >
+                  AI Event Creator
+                </Button>
+              </>
+            )}
+
             <div className="flex items-center gap-1 bg-zinc-800/40 p-1 rounded-xl border border-zinc-800">
               <button
                 onClick={() => setViewMode('grid')}
@@ -177,6 +200,23 @@ export default function EventDiscoveryHub({ events, onViewDetails, onGetQR }: Ev
       {/* GRID VIEW MODE */}
       {viewMode === 'grid' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Create New Event Card */}
+          {onCreateEvent && (
+            <motion.div
+              whileHover={{ y: -4 }}
+              onClick={onCreateEvent}
+              className={`p-6 rounded-2xl border-2 border-dashed ${
+                isDark ? 'border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10' : 'border-amber-500/50 bg-amber-50/50 hover:bg-amber-50'
+              } flex flex-col items-center justify-center text-center cursor-pointer transition-all min-h-[260px] group`}
+            >
+              <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-zinc-950 mb-3 shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform">
+                <Plus className="w-6 h-6 stroke-[3]" />
+              </div>
+              <h3 className={`text-base font-extrabold mb-1 ${textPri} group-hover:text-amber-500 transition-colors`}>Create New Event</h3>
+              <p className={`text-xs max-w-xs leading-relaxed ${textSub}`}>Launch AI event creator to auto-generate title, agenda, rules & FAQs.</p>
+            </motion.div>
+          )}
+
           {filteredEvents.map((ev, idx) => {
             const cap = ev.capacity || 500;
             const pct = Math.min(Math.round((ev.attendees / cap) * 100), 100);

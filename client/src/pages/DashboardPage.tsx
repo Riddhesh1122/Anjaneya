@@ -425,6 +425,7 @@ export default function DashboardPage() {
           events={filteredEvents}
           onViewDetails={ev => setDetailsModalEvent(ev)}
           onGetQR={ev => setQrModalEvent(ev)}
+          onCreateEvent={() => setGeneratorModalMode('event')}
         />
       </motion.div>
     );
