@@ -1,12 +1,31 @@
 const asyncHandler = require('../utils/asyncHandler');
 const registrationService = require('../services/registration.service');
+const emailService = require('../services/email.service');
+const emailTemplates = require('../templates/emailTemplates');
 const { HTTP_STATUS } = require('../constants');
 
 // POST /events/:id/register - attendee registers for an event, receives QR token
 const registerForEvent = asyncHandler(async (req, res) => {
   const eventId = req.params.id;
   const attendeeId = req.user ? req.user._id : 'demo-attendee';
+  const attendeeEmail = req.user ? req.user.email : 'user@example.com';
+  const attendeeName = req.user ? req.user.name : 'Attendee';
+
   const result = await registrationService.createRegistration(eventId, attendeeId);
+
+  // Non-blocking background email dispatch
+  const html = emailTemplates.getRegistrationConfirmationTemplate({
+    attendeeName,
+    eventTitle: 'Platform Event',
+    eventDate: 'Upcoming Date',
+    location: 'Main Venue',
+    ticketId: `ANJ-${result.registrationId.toString().substring(0, 6).toUpperCase()}`,
+  });
+  emailService.sendEmail({
+    to: attendeeEmail,
+    subject: '🎉 Registration Confirmed - Anjaneya Pass',
+    html,
+  });
 
   // Broadcast real-time socket registration event
   const io = req.app.get('io');
