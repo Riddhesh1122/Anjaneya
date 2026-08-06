@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Users, Ticket, Sparkles, CheckCircle2, ShieldAlert, Award, Clock } from 'lucide-react';
+import EventGallerySection from './dashboard/EventGallerySection';
+import EventReviewsSection from './dashboard/EventReviewsSection';
 
 interface EventDetailsModalProps {
   isOpen: boolean;
@@ -109,6 +111,12 @@ export default function EventDetailsModal({ isOpen, onClose, event, onOpenQR }: 
                 </div>
               </div>
             </div>
+
+            {/* Event Gallery & Memories */}
+            <EventGallerySection eventId={event.id || 'e1'} eventStatus={event.status} />
+
+            {/* Event Reviews & Ratings */}
+            <EventReviewsSection eventId={event.id || 'e1'} />
           </div>
 
           {/* Modal Footer Actions */}
