@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, BarChart2, Users, Settings, Calendar, UserCheck,
   CheckSquare, Sparkles, LogOut, Menu, X, ChevronLeft, ChevronRight,
-  HelpCircle, Bell, QrCode
+  HelpCircle, Bell, QrCode, ShieldAlert
 } from 'lucide-react';
 import { useSidebar } from '../contexts/SidebarContext';
 import { useTheme } from '../contexts/ThemeContext';
