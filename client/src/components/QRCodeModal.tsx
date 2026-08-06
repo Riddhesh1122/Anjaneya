@@ -102,18 +102,25 @@ export default function QRCodeModal({ isOpen, onClose, event, attendeeName = 'De
             {/* Footer Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => alert(`Ticket Code ${ticketId} copied to clipboard!`)}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all active:scale-95"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = qrSvgUrl;
+                  link.download = `Anjaneya-Ticket-${event.title.replace(/\s+/g, '-')}.png`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold flex items-center justify-center gap-2 border border-zinc-700 transition-all cursor-pointer active:scale-95"
               >
-                <Share2 className="w-4 h-4 text-slate-400" />
-                Share Pass
+                <Download className="w-4 h-4 text-amber-400" />
+                Download PNG
               </button>
               <button
-                onClick={() => alert('Downloading digital pass PDF...')}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all active:scale-95"
+                onClick={() => window.print()}
+                className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 transition-all cursor-pointer active:scale-95"
               >
-                <Download className="w-4 h-4" />
-                Save Ticket
+                <Ticket className="w-4 h-4 text-zinc-950" />
+                Print Pass / PDF
               </button>
             </div>
           </div>

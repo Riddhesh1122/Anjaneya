@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, BarChart2, Users, Settings, Calendar, UserCheck,
   CheckSquare, Sparkles, LogOut, Menu, X, ChevronLeft, ChevronRight,
-  HelpCircle, Bell,
+  HelpCircle, Bell, QrCode
 } from 'lucide-react';
 import { useSidebar } from '../contexts/SidebarContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -19,6 +19,7 @@ const NAV_GROUPS = [
       { key: 'events',     label: 'Events',       icon: Calendar   },
       { key: 'volunteers', label: 'Volunteers',   icon: UserCheck  },
       { key: 'tasks',      label: 'Tasks',        icon: CheckSquare },
+      { key: 'scanner',    label: 'QR Scanner',   icon: QrCode     },
     ],
   },
   {

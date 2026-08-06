@@ -8,6 +8,10 @@ const RegistrationSchema = new mongoose.Schema(
     status: { type: String, enum: ['registered', 'checked_in', 'checked_out'], default: 'registered' },
     checkInTime: { type: Date },
     checkOutTime: { type: Date },
+    scannedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    isCertificateEligible: { type: Boolean, default: false },
+    checkInNotes: { type: String },
+    verificationSignature: { type: String },
   },
   { timestamps: true }
 );

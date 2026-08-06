@@ -54,6 +54,9 @@ import EventDetailsModal from '../components/EventDetailsModal';
 import VolunteerTaskBoard from '../components/VolunteerTaskBoard';
 import AdminOverview from '../components/AdminOverview';
 
+// Specialized Pages
+import QRScannerPage from './QRScannerPage';
+
 // AI Components
 import FloatingAIButton from '../components/ai/FloatingAIButton';
 import AIRecommendationCard from '../components/ai/AIRecommendationCard';
@@ -832,6 +835,7 @@ export default function DashboardPage() {
     events: renderEvents,
     volunteers: renderVolunteers,
     tasks: renderTasks,
+    scanner: () => <QRScannerPage />,
     analytics: renderAnalytics,
     'ai-studio': renderAIStudio,
     users: renderUsers,
