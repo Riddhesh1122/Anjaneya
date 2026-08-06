@@ -21,7 +21,8 @@ import {
   ChevronDown,
   Ticket,
   QrCode,
-  ShieldAlert
+  ShieldAlert,
+  Megaphone
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { SidebarProvider } from '../contexts/SidebarContext';
