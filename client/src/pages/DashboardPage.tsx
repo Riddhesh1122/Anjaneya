@@ -44,6 +44,10 @@ import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton, CardSkeleton } from '../components/ui/Skeleton';
 
+// AI Suite Components
+import AIPromptLibrary from '../components/ai/AIPromptLibrary';
+import AIHistoryPanel from '../components/ai/AIHistoryPanel';
+
 // Role Views & Specialized Components
 import QRCodeModal from '../components/QRCodeModal';
 import EventDetailsModal from '../components/EventDetailsModal';
@@ -76,6 +80,7 @@ export default function DashboardPage() {
   // Navigation & Search state
   const [activeSection, setActiveSection] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
+  const [aiStudioTab, setAiStudioTab] = useState<'tools' | 'prompts' | 'history'>('tools');
 
   // Section Minimization States
   const [isRecsMinimized, setIsRecsMinimized] = useState(false);
@@ -241,12 +246,12 @@ export default function DashboardPage() {
   const handleSaveGeneratedEvent = (data: EventGeneratedData) => {
     const newEvent = {
       id: `ev-${Date.now()}`,
-      title: 'AI Generated Event Draft',
-      category: 'AI Generated',
+      title: (data as any).title || 'AI Generated Event Draft',
+      category: (data as any).category || 'AI Generated',
       date: 'Aug 20, 2026',
       location: 'Innovation Center',
       attendees: 1,
-      description: data.description,
+      description: data.description || 'Custom generated event description.',
       isToday: false,
       price: 0,
       isFree: true,
@@ -353,10 +358,10 @@ export default function DashboardPage() {
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className={`text-xl font-semibold ${textPri}`}>
+            <h1 className={`text-2xl font-extrabold tracking-tight ${textPri}`}>
               {greeting}, <span className="text-amber-500">{user?.name?.split(' ')[0] || 'there'}</span> 👋
             </h1>
-            <p className={`text-xs mt-0.5 ${textMut}`}>{dateStr} · Here's what's happening on your platform.</p>
+            <p className={`text-sm font-medium mt-1 ${textMut}`}>{dateStr} · Real-time event & volunteer intelligence overview.</p>
           </div>
           <QuickActions
             onCreateEvent={() => setGeneratorModalMode('event')}
@@ -415,8 +420,8 @@ export default function DashboardPage() {
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className={`text-xl font-semibold ${textPri}`}>Event Hub</h1>
-            <p className={`text-xs mt-0.5 ${textMut}`}>Manage, search, and generate events using AI</p>
+            <h1 className={`text-2xl font-bold ${textPri}`}>Event Hub</h1>
+            <p className={`text-sm font-medium mt-0.5 ${textMut}`}>Manage, publish, search, and generate events using AI</p>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -429,7 +434,15 @@ export default function DashboardPage() {
             <Button
               variant="primary"
               size="sm"
-              leftIcon={<Sparkles className="w-3.5 h-3.5 text-zinc-950" />}
+              leftIcon={<Plus className="w-4 h-4 text-zinc-950" />}
+              onClick={() => setGeneratorModalMode('event')}
+            >
+              Create New Event
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Sparkles className="w-4 h-4 text-amber-500" />}
               onClick={() => setGeneratorModalMode('event')}
             >
               Generate with AI
@@ -438,7 +451,7 @@ export default function DashboardPage() {
         </div>
 
         {searchQuery && (
-          <div className={`p-3 rounded-xl border flex items-center justify-between text-xs ${isDark ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+          <div className={`p-3 rounded-xl border flex items-center justify-between text-xs font-semibold ${isDark ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
             <span>🔍 Showing AI Smart Search results for: <strong>"{searchQuery}"</strong> ({filteredEvents.length} found)</span>
             <button onClick={() => setSearchQuery('')} className="font-semibold underline cursor-pointer">Clear Filter</button>
           </div>
@@ -455,7 +468,7 @@ export default function DashboardPage() {
             icon={<Calendar className="w-6 h-6 text-amber-500" />}
             title="No events found"
             description={searchQuery ? `No events matched your search query "${searchQuery}".` : "You haven't created any events yet."}
-            actionLabel="Generate Event with AI"
+            actionLabel="+ Create New Event"
             onAction={() => setGeneratorModalMode('event')}
           />
         ) : (
@@ -469,6 +482,21 @@ export default function DashboardPage() {
                 className="overflow-hidden"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Create New Event Card */}
+                  <motion.div
+                    whileHover={{ y: -3 }}
+                    onClick={() => setGeneratorModalMode('event')}
+                    className={`p-6 rounded-xl border-2 border-dashed ${
+                      isDark ? 'border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10' : 'border-amber-500/50 bg-amber-50/50 hover:bg-amber-50'
+                    } flex flex-col items-center justify-center text-center cursor-pointer transition-all min-h-[220px] group`}
+                  >
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-zinc-950 mb-3 shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform">
+                      <Plus className="w-6 h-6 stroke-[3]" />
+                    </div>
+                    <h3 className={`text-base font-bold mb-1 ${textPri} group-hover:text-amber-500 transition-colors`}>Create New Event</h3>
+                    <p className={`text-xs max-w-xs leading-relaxed ${textMut}`}>Launch AI event creator to auto-generate title, agenda, rules & FAQs.</p>
+                  </motion.div>
+
                   {filteredEvents.map((ev) => (
                     <motion.div
                       key={ev.id}
@@ -478,16 +506,16 @@ export default function DashboardPage() {
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <Badge variant="amber">{ev.category}</Badge>
-                          <span className="text-xs text-emerald-500 font-semibold">{ev.isFree ? 'Free Pass' : `$${ev.price}`}</span>
+                          <span className="text-xs text-emerald-500 font-bold">{ev.isFree ? 'Free Pass' : `$${ev.price}`}</span>
                         </div>
-                        <h3 className={`text-sm font-semibold mb-1 group-hover:text-amber-500 transition-colors ${textPri}`}>{ev.title}</h3>
+                        <h3 className={`text-base font-bold mb-1 group-hover:text-amber-500 transition-colors ${textPri}`}>{ev.title}</h3>
                         <p className={`text-xs mb-4 line-clamp-2 leading-relaxed ${textMut}`}>{ev.description}</p>
                       </div>
 
                       <div className={`space-y-3 pt-3 border-t ${isDark ? 'border-zinc-800' : 'border-zinc-100'}`}>
-                        <div className={`flex items-center justify-between text-xs ${textMut}`}>
-                          <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5 text-amber-500" /> {ev.date}</span>
-                          <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-indigo-400" /> {ev.location}</span>
+                        <div className={`flex items-center justify-between text-xs font-medium ${textMut}`}>
+                          <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-amber-500" /> {ev.date}</span>
+                          <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-indigo-400" /> {ev.location}</span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
@@ -624,63 +652,125 @@ export default function DashboardPage() {
     </motion.div>
   );
 
-  // 6. AI STUDIO TOOLS PAGE
-  const renderAIStudio = () => (
-    <motion.div
-      key="ai-studio"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="space-y-6"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Anjaneya AI Studio</h1>
-          <p className="text-slate-400 text-xs sm:text-sm">Select an AI tool to generate content automatically</p>
-        </div>
-        <button
-          onClick={() => setShowConfigModal(true)}
-          className="px-4 py-2 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-semibold flex items-center gap-2 cursor-pointer hover:bg-purple-500/30"
-        >
-          <Cpu className="w-4 h-4 text-purple-400" />
-          <span>Configure Provider API Key</span>
-        </button>
-      </div>
+  // 6. AI STUDIO COPILOT HUB PAGE
+  const renderAIStudio = () => {
+    const textPri = isDark ? 'text-zinc-100' : 'text-zinc-900';
+    const textMut = isDark ? 'text-zinc-400' : 'text-zinc-500';
+    const cardBg = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { id: 'event', title: 'AI Event Description Generator', desc: 'Generate complete agenda, rules, FAQs & code of conduct.', icon: FileText, color: 'from-indigo-500 to-purple-600' },
-          { id: 'volunteer', title: 'AI Volunteer Allocator', desc: 'Match volunteers based on skills, availability & experience.', icon: UserCheck, color: 'from-purple-500 to-pink-600' },
-          { id: 'certificate', title: 'AI Certificate Writer', desc: 'Auto-write appreciation text for volunteers and participants.', icon: Award, color: 'from-amber-500 to-rose-600' },
-          { id: 'email', title: 'AI Email Generator', desc: 'Draft confirmations, reminders, invitations & thank you emails.', icon: Mail, color: 'from-teal-500 to-emerald-600' },
-          { id: 'faq', title: 'AI Smart FAQ Generator', desc: 'Build instant structured FAQ pairs from event details.', icon: HelpCircle, color: 'from-blue-500 to-indigo-600' },
-        ].map((tool) => {
-          const Icon = tool.icon;
-          return (
-            <motion.div
-              key={tool.id}
-              whileHover={{ y: -6 }}
-              onClick={() => setGeneratorModalMode(tool.id as GeneratorMode)}
-              className="p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-purple-500/40 backdrop-blur-xl cursor-pointer flex flex-col justify-between group"
+    const aiToolsList = [
+      { id: 'event', title: 'AI Event Description Generator', desc: 'Auto-create description, 6-stage agenda, FAQs, and Code of Conduct.', icon: FileText, color: 'text-amber-500' },
+      { id: 'volunteer', title: 'AI Volunteer Matcher & Allocator', desc: 'Skill matching, availability score, and instant volunteer assignment.', icon: UserCheck, color: 'text-indigo-400' },
+      { id: 'email', title: 'AI Email Draft Writer', desc: 'Generate invitations, reminders, thank you emails, and winner notices.', icon: Mail, color: 'text-emerald-500' },
+      { id: 'announcement', title: 'AI Broadcast Announcement Generator', desc: 'Draft High-Priority venue change, emergency, or event start alerts.', icon: Megaphone, color: 'text-rose-500' },
+      { id: 'schedule', title: 'AI Event Schedule Planner', desc: 'Build 6-stage timetable with keynotes, workshops, and breaks.', icon: Clock, color: 'text-violet-400' },
+      { id: 'faq', title: 'AI Smart FAQ Generator', desc: 'Generate structured Q&A pairs for attendees and participants.', icon: HelpCircle, color: 'text-amber-500' },
+      { id: 'summary', title: 'AI Event Risk & Summary Generator', desc: 'Build comprehensive objectives, audience estimates, and risk analysis.', icon: ShieldAlert, color: 'text-rose-400' },
+      { id: 'certificate', title: 'AI Certificate Writer', desc: 'Auto-write appreciation certificates for volunteers and mentors.', icon: Award, color: 'text-indigo-400' },
+    ];
+
+    return (
+      <motion.div
+        key="ai-studio"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -16 }}
+        transition={{ duration: 0.25 }}
+        className="space-y-6"
+      >
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className={`text-xl font-semibold ${textPri}`}>Anjaneya AI Studio & Copilot</h1>
+            <p className={`text-xs mt-0.5 ${textMut}`}>AI-powered event management copilot for organizers, volunteers, and attendees</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Cpu className="w-3.5 h-3.5 text-amber-500" />}
+              onClick={() => setShowConfigModal(true)}
             >
-              <div>
-                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${tool.color} flex items-center justify-center text-white mb-4 shadow-lg`}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                <h3 className="text-base font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">{tool.title}</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">{tool.desc}</p>
-              </div>
-              <div className="mt-6 flex items-center gap-2 text-xs font-semibold text-purple-300">
-                <span>Launch AI Tool</span>
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </motion.div>
-  );
+              LLM Provider Settings
+            </Button>
+          </div>
+        </div>
+
+        {/* Tab switcher: Generator Tools | Prompt Library | History */}
+        <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
+          <Button
+            variant={aiStudioTab === 'tools' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setAiStudioTab('tools')}
+            leftIcon={<Sparkles className="w-3.5 h-3.5" />}
+          >
+            AI Copilot Tools
+          </Button>
+          <Button
+            variant={aiStudioTab === 'prompts' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setAiStudioTab('prompts')}
+            leftIcon={<Calendar className="w-3.5 h-3.5" />}
+          >
+            Prompt Library
+          </Button>
+          <Button
+            variant={aiStudioTab === 'history' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setAiStudioTab('history')}
+            leftIcon={<Clock className="w-3.5 h-3.5" />}
+          >
+            AI History & Starred
+          </Button>
+        </div>
+
+        {/* TAB 1: TOOLS */}
+        {aiStudioTab === 'tools' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {aiToolsList.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <motion.div
+                  key={tool.id}
+                  whileHover={{ y: -3 }}
+                  onClick={() => setGeneratorModalMode(tool.id as GeneratorMode)}
+                  className={`p-5 rounded-xl border ${cardBg} hover:border-amber-500/40 cursor-pointer transition-all flex flex-col justify-between group`}
+                >
+                  <div>
+                    <div className={`p-2.5 rounded-lg w-fit mb-3 ${isDark ? 'bg-zinc-800' : 'bg-zinc-100'}`}>
+                      <Icon className={`w-5 h-5 ${tool.color}`} />
+                    </div>
+                    <h3 className={`text-xs font-bold mb-1.5 group-hover:text-amber-500 transition-colors ${textPri}`}>
+                      {tool.title}
+                    </h3>
+                    <p className={`text-xs leading-relaxed line-clamp-3 ${textMut}`}>
+                      {tool.desc}
+                    </p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-zinc-800/50 flex items-center justify-between text-xs text-amber-500 font-semibold">
+                    <span>Launch AI Tool</span>
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* TAB 2: PROMPT LIBRARY */}
+        {aiStudioTab === 'prompts' && (
+          <AIPromptLibrary
+            onSelectPrompt={(mode) => setGeneratorModalMode(mode)}
+          />
+        )}
+
+        {/* TAB 3: AI HISTORY */}
+        {aiStudioTab === 'history' && (
+          <AIHistoryPanel />
+        )}
+      </motion.div>
+    );
+  };
 
   // 7. PRESERVED USERS PAGE
   const renderUsers = () => (

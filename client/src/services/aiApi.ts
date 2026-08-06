@@ -705,3 +705,183 @@ Return raw JSON only.`;
     },
   ];
 }
+
+// ----------------------------------------------------------------------
+// 10. AI SCHEDULE GENERATOR
+// ----------------------------------------------------------------------
+export interface AIScheduleItem {
+  time: string;
+  sessionTitle: string;
+  speaker: string;
+  location: string;
+  type: 'Keynote' | 'Workshop' | 'Break' | 'Networking' | 'Closing';
+}
+
+export async function generateEventSchedule(params: {
+  eventName: string;
+  durationHours: number;
+  speakersCount: number;
+  hasBreak: boolean;
+}): Promise<AIScheduleItem[]> {
+  const prompt = `Generate a JSON array [{ "time": string, "sessionTitle": string, "speaker": string, "location": string, "type": string }] for an event schedule.
+Event: ${params.eventName}
+Duration: ${params.durationHours} hours
+Speakers: ${params.speakersCount}
+Return raw JSON array only.`;
+
+  const llmRes = await callLLM(prompt, 'You are an event schedule planner.');
+
+  if (llmRes) {
+    try {
+      const cleanJson = llmRes.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanJson);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {
+      console.warn('Failed to parse LLM schedule JSON:', e);
+    }
+  }
+
+  await new Promise((res) => setTimeout(res, 450));
+
+  return [
+    { time: '09:00 AM', sessionTitle: 'Registration & Welcome Coffee', speaker: 'Organizing Team', location: 'Main Foyer', type: 'Networking' },
+    { time: '10:00 AM', sessionTitle: `Opening Keynote: Innovations in ${params.eventName}`, speaker: 'Dr. Vikram Sethi', location: 'Grand Auditorium', type: 'Keynote' },
+    { time: '11:30 AM', sessionTitle: 'Interactive Technical Deep Dive Workshop', speaker: 'Tech Lead Panel', location: 'Lab B', type: 'Workshop' },
+    { time: '01:00 PM', sessionTitle: 'Networking Lunch & AI Demo Showcase', speaker: 'All Participants', location: 'Dining Hall', type: 'Break' },
+    { time: '02:30 PM', sessionTitle: 'Hands-on Hackathon & Project Building Session', speaker: 'Mentors & Judges', location: 'Stage A', type: 'Workshop' },
+    { time: '04:30 PM', sessionTitle: 'Awards Ceremony & Closing Remarks', speaker: 'Steering Committee', location: 'Grand Auditorium', type: 'Closing' },
+  ];
+}
+
+// ----------------------------------------------------------------------
+// 11. AI ANNOUNCEMENT GENERATOR
+// ----------------------------------------------------------------------
+export async function generateEventAnnouncement(params: {
+  eventName: string;
+  announcementType: 'starting' | 'venue_change' | 'volunteers_needed' | 'registration_closing' | 'winners' | 'emergency';
+  additionalNotes?: string;
+}): Promise<{ title: string; body: string; priority: 'High' | 'Medium' | 'Normal' }> {
+  const typeMap = {
+    starting: { title: `🚀 ${params.eventName} is Starting Now!`, body: `Attention attendees: ${params.eventName} is officially commencing. Please make your way to the main auditorium for opening remarks.`, priority: 'High' as const },
+    venue_change: { title: `📍 Venue Change Update for ${params.eventName}`, body: `Please note that sessions have been relocated to Hall B to accommodate higher attendance. Signs are posted at the entrance.`, priority: 'High' as const },
+    volunteers_needed: { title: `🙋 Volunteer Call for ${params.eventName}`, body: `We are seeking 3 additional volunteers for check-in and stage support. Credits and certificate bonus will be awarded!`, priority: 'Medium' as const },
+    registration_closing: { title: `⏰ Registration Closing Soon for ${params.eventName}`, body: `Final passes are running out! Complete your registration in your portal before seats fill up.`, priority: 'Medium' as const },
+    winners: { title: `🏆 Winner Announcement for ${params.eventName}`, body: `Congratulations to all team winners! Check your email and dashboard for prize claim instructions.`, priority: 'Normal' as const },
+    emergency: { title: `⚠️ Important Announcement: ${params.eventName}`, body: `Please observe venue guidelines and refer to staff for immediate instructions. ${params.additionalNotes || ''}`, priority: 'High' as const },
+  };
+
+  await new Promise((res) => setTimeout(res, 350));
+  return typeMap[params.announcementType] || typeMap.starting;
+}
+
+// ----------------------------------------------------------------------
+// 12. AI EVENT SUMMARY & RISK ANALYSIS
+// ----------------------------------------------------------------------
+export interface AISummaryResult {
+  overview: string;
+  keyObjectives: string[];
+  recommendedVolunteersCount: number;
+  expectedAudienceSize: number;
+  riskAnalysis: { risk: string; severity: 'High' | 'Medium' | 'Low'; mitigation: string }[];
+  recommendations: string[];
+}
+
+export async function generateEventSummary(params: {
+  eventName: string;
+  category: string;
+  targetAudience: string;
+}): Promise<AISummaryResult> {
+  await new Promise((res) => setTimeout(res, 500));
+
+  return {
+    overview: `${params.eventName} is a premier ${params.category} initiative targeted at ${params.targetAudience}. It combines technical depth with high participant engagement.`,
+    keyObjectives: [
+      `Deliver actionable technical knowledge in ${params.category}.`,
+      'Provide structured networking opportunities between attendees and industry experts.',
+      'Maintain automated check-ins and volunteer duty allocation.',
+    ],
+    recommendedVolunteersCount: 8,
+    expectedAudienceSize: 350,
+    riskAnalysis: [
+      { risk: 'Peak arrival bottleneck at check-in desk', severity: 'Medium', mitigation: 'Deploy 3 additional QR scan volunteers during 8:30 AM - 9:30 AM.' },
+      { risk: 'Wi-Fi bandwidth overload during live demos', severity: 'High', mitigation: 'Provision dedicated organizer SSID for stage presenters.' },
+    ],
+    recommendations: [
+      'Enable AI natural language smart search on registration pages.',
+      'Send reminder email broadcast 24 hours prior to launch.',
+      'Auto-generate verified digital certificates upon closing.',
+    ],
+  };
+}
+
+// ----------------------------------------------------------------------
+// 13. AI HISTORY PERSISTENCE
+// ----------------------------------------------------------------------
+export interface AIHistoryRecord {
+  id: string;
+  type: string;
+  title: string;
+  prompt: string;
+  output: string;
+  timestamp: string;
+  isFavorite: boolean;
+}
+
+const HISTORY_KEY = 'anjaneya_ai_history';
+
+export function getAIHistory(): AIHistoryRecord[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.warn('Failed to parse AI history from storage:', e);
+  }
+  return [
+    {
+      id: 'h-1',
+      type: 'Event Description',
+      title: 'AI & ML Innovations Summit 2026',
+      prompt: 'Generate full agenda and code of conduct for AI Summit',
+      output: 'Explores LLM architectures, agentic workflows, and production deployment strategies.',
+      timestamp: '2 hours ago',
+      isFavorite: true,
+    },
+    {
+      id: 'h-2',
+      type: 'Volunteer Matcher',
+      title: 'Aarav Sharma - Check-in Lead',
+      prompt: 'Match registration desk lead with React skills',
+      output: '96% Fit score. Matched for Registration & QR Scanning duties.',
+      timestamp: 'Yesterday',
+      isFavorite: false,
+    },
+  ];
+}
+
+export function saveAIHistoryRecord(record: Omit<AIHistoryRecord, 'id' | 'timestamp' | 'isFavorite'>): AIHistoryRecord {
+  const history = getAIHistory();
+  const newRecord: AIHistoryRecord = {
+    ...record,
+    id: `hist-${Date.now()}`,
+    timestamp: 'Just now',
+    isFavorite: false,
+  };
+  const updated = [newRecord, ...history];
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(updated)); } catch (e) {}
+  return newRecord;
+}
+
+export function toggleFavoriteAIHistory(id: string): AIHistoryRecord[] {
+  const history = getAIHistory().map((item) =>
+    item.id === id ? { ...item, isFavorite: !item.isFavorite } : item
+  );
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
+  return history;
+}
+
+export function deleteAIHistoryRecord(id: string): AIHistoryRecord[] {
+  const history = getAIHistory().filter((item) => item.id !== id);
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
+  return history;
+}
+

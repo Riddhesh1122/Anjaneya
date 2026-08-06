@@ -17,9 +17,9 @@
   --color-surface-2:  #27272a; /* zinc-800 */
   --color-border:     #27272a; /* zinc-800 */
   --color-border-2:   #3f3f46; /* zinc-700 */
-  --color-text:       #fafafa; /* zinc-50  */
-  --color-text-muted: #a1a1aa; /* zinc-400 */
-  --color-text-sub:   #71717a; /* zinc-500 */
+  --color-text:       #ffffff; /* crisp white */
+  --color-text-muted: #d4d4d8; /* zinc-300 */
+  --color-text-sub:   #a1a1aa; /* zinc-400 */
 }
 
 /* ── Light theme tokens ── */
@@ -30,8 +30,8 @@
   --color-border:     #e4e4e7; /* zinc-200 */
   --color-border-2:   #d4d4d8; /* zinc-300 */
   --color-text:       #09090b; /* zinc-950 */
-  --color-text-muted: #52525b; /* zinc-600 */
-  --color-text-sub:   #71717a; /* zinc-500 */
+  --color-text-muted: #27272a; /* zinc-800 */
+  --color-text-sub:   #3f3f46; /* zinc-700 */
 }
 
 * {

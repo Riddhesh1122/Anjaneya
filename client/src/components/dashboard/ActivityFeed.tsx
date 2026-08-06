@@ -13,52 +13,54 @@ export default function ActivityFeed() {
   const { isDark } = useTheme();
 
   const surface = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
-  const textPrimary = isDark ? 'text-zinc-100' : 'text-zinc-900';
-  const textMuted = isDark ? 'text-zinc-400' : 'text-zinc-500';
-  const textSub = isDark ? 'text-zinc-500' : 'text-zinc-400';
+  const textPrimary = isDark ? 'text-white' : 'text-zinc-950';
+  const textMuted = isDark ? 'text-zinc-300' : 'text-zinc-700';
+  const textSub = isDark ? 'text-zinc-400' : 'text-zinc-500';
   const divider = isDark ? 'border-zinc-800' : 'border-zinc-100';
   const lineBg = isDark ? 'bg-zinc-800' : 'bg-zinc-200';
 
   return (
-    <div className={`rounded-xl border ${surface} overflow-hidden`}>
-      {/* Header */}
-      <div className={`px-5 py-4 border-b ${divider}`}>
-        <h3 className={`text-sm font-semibold ${textPrimary}`}>Recent Activity</h3>
-        <p className={`text-xs mt-0.5 ${textMuted}`}>Live platform event stream</p>
-      </div>
+    <div className={`rounded-xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
+      <div>
+        {/* Header */}
+        <div className={`px-5 py-4 border-b ${divider}`}>
+          <h3 className={`text-base font-bold ${textPrimary}`}>Recent Platform Activity</h3>
+          <p className={`text-xs font-medium mt-0.5 ${textSub}`}>Live platform event stream & user updates</p>
+        </div>
 
-      {/* Timeline */}
-      <div className="px-5 py-4 space-y-0">
-        {feed.map((item, i) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.25, delay: i * 0.07 }}
-            className="flex gap-4"
-          >
-            {/* Timeline spine */}
-            <div className="flex flex-col items-center">
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-                style={{ background: item.color }}
-              >
-                {item.initials}
+        {/* Timeline */}
+        <div className="px-5 py-4 space-y-1">
+          {feed.map((item, i) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.25, delay: i * 0.07 }}
+              className="flex gap-3.5"
+            >
+              {/* Timeline spine */}
+              <div className="flex flex-col items-center">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-md"
+                  style={{ background: item.color }}
+                >
+                  {item.initials}
+                </div>
+                {i < feed.length - 1 && <div className={`w-px flex-1 mt-1 mb-1 ${lineBg}`} />}
               </div>
-              {i < feed.length - 1 && <div className={`w-px flex-1 mt-1 mb-1 ${lineBg}`} />}
-            </div>
 
-            {/* Content */}
-            <div className={`pb-4 flex-1 min-w-0 ${i === feed.length - 1 ? '' : ''}`}>
-              <p className={`text-xs leading-relaxed ${textPrimary}`}>
-                <strong className="font-semibold">{item.name}</strong>
-                {' '}{item.action}{' '}
-                <span className="text-amber-500 font-medium">{item.target}</span>
-              </p>
-              <p className={`text-[11px] mt-0.5 ${textSub}`}>{item.time}</p>
-            </div>
-          </motion.div>
-        ))}
+              {/* Content */}
+              <div className="pb-4 flex-1 min-w-0">
+                <p className={`text-sm leading-relaxed ${textPrimary}`}>
+                  <strong className="font-bold">{item.name}</strong>
+                  {' '}{item.action}{' '}
+                  <span className="text-amber-500 font-bold">{item.target}</span>
+                </p>
+                <p className={`text-xs font-medium mt-0.5 ${textSub}`}>{item.time}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );

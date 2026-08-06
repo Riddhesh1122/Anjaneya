@@ -7,6 +7,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 
+import Logo from '../components/Logo';
+
 export default function LoginPage() {
   const { login, register, isLoading } = useAuth();
   const { isDark } = useTheme();
@@ -87,13 +89,14 @@ export default function LoginPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
+            className="flex flex-col items-center"
           >
-            <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-3xl font-black shadow-xl">
-              A
+            <div className="mb-6 p-4 rounded-3xl bg-zinc-950/40 backdrop-blur-md border border-amber-500/30 shadow-2xl shadow-amber-500/20">
+              <Logo size="xl" showText={false} />
             </div>
-            <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight">Anjaneya</h1>
-            <p className="text-sm text-amber-100/90 leading-relaxed max-w-md mx-auto">
-              AI-Powered Event & Volunteer Management Platform. Seamless registration, skill matching, and instant analytics.
+            <h1 className="text-4xl font-black text-white mb-3 tracking-tight">ANJANEYA</h1>
+            <p className="text-sm font-medium text-amber-100/90 leading-relaxed max-w-md mx-auto">
+              Centralized Event & Volunteer Management AI Platform. Seamless registration, smart volunteer matching, and instant copilot analytics.
             </p>
           </motion.div>
         </div>

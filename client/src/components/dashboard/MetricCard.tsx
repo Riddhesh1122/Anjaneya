@@ -25,41 +25,43 @@ export default function MetricCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
-      className={`rounded-xl border p-5 transition-all duration-200 cursor-default ${
+      className={`rounded-xl border p-5 transition-all duration-200 cursor-default flex flex-col justify-between h-full ${
         isDark
           ? 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'
           : 'bg-white border-zinc-200 hover:border-zinc-300 shadow-sm'
       }`}
     >
-      <div className="flex items-start justify-between mb-4">
-        {/* Icon */}
-        <div className={`p-2 rounded-lg ${isDark ? 'bg-zinc-800' : 'bg-zinc-100'}`}>
-          {icon}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          {/* Icon */}
+          <div className={`p-2.5 rounded-lg ${isDark ? 'bg-zinc-800 text-amber-500' : 'bg-zinc-100 text-amber-600'}`}>
+            {icon}
+          </div>
+          {/* Trend badge */}
+          {trend && (
+            <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+              trendUp
+                ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
+                : 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
+            }`}>
+              {trendUp ? '↑' : '↓'} {trend}
+            </span>
+          )}
         </div>
-        {/* Trend badge */}
-        {trend && (
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-            trendUp
-              ? 'bg-emerald-500/10 text-emerald-500'
-              : 'bg-rose-500/10 text-rose-500'
-          }`}>
-            {trendUp ? '↑' : '↓'} {trend}
-          </span>
-        )}
+
+        {/* Label */}
+        <p className={`text-sm font-semibold mb-1 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+          {title}
+        </p>
+
+        {/* Value */}
+        <p className={`text-3xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-zinc-950'}`}>
+          {typeof value === 'number' ? value.toLocaleString() : value}
+        </p>
       </div>
 
-      {/* Label */}
-      <p className={`text-xs font-medium mb-1 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-        {title}
-      </p>
-
-      {/* Value */}
-      <p className={`text-2xl font-semibold tracking-tight ${isDark ? 'text-zinc-50' : 'text-zinc-900'}`}>
-        {typeof value === 'number' ? value.toLocaleString() : value}
-      </p>
-
       {/* Sparkline */}
-      <div className="flex items-end gap-0.5 mt-4 h-8">
+      <div className="flex items-end gap-1 mt-4 h-9">
         {sparkline.map((v, i) => (
           <motion.div
             key={i}
@@ -70,7 +72,7 @@ export default function MetricCard({
             className={`flex-1 rounded-sm origin-bottom ${
               i === sparkline.length - 1
                 ? 'bg-amber-500'
-                : isDark ? 'bg-zinc-700' : 'bg-zinc-200'
+                : isDark ? 'bg-zinc-700' : 'bg-zinc-300'
             }`}
           />
         ))}

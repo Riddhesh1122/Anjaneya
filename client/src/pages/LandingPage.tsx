@@ -7,6 +7,7 @@ import {
   Zap, Globe, Shield, Award, Users, TrendingUp, MessageSquare,
   Star, Menu, X, QrCode, Brain, Layers, Activity
 } from 'lucide-react';
+import Logo from '../components/Logo';
 
 /* ── Inline social icons (lucide-react version doesn't ship Github/Twitter/Linkedin) ── */
 const IconGithub = ({ className }: { className?: string }) => (
@@ -145,14 +146,7 @@ function Navbar({ onNavigate }: { onNavigate: () => void }) {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 via-orange-500 to-indigo-600 flex items-center justify-center text-white font-black text-base shadow-lg shadow-amber-500/25">
-              A
-            </div>
-            <span className="text-lg font-extrabold bg-gradient-to-r from-amber-400 to-indigo-400 bg-clip-text text-transparent">
-              Anjaneya
-            </span>
-          </div>
+          <Logo size="lg" />
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-6">

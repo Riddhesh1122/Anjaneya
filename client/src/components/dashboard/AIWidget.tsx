@@ -32,60 +32,64 @@ export default function AIWidget({ onLaunchAI, onVolunteerMatch }: AIWidgetProps
   const { isDark } = useTheme();
 
   const surface = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
-  const textPrimary = isDark ? 'text-zinc-100' : 'text-zinc-900';
-  const textMuted = isDark ? 'text-zinc-400' : 'text-zinc-500';
+  const textPrimary = isDark ? 'text-white' : 'text-zinc-950';
+  const textMuted = isDark ? 'text-zinc-300' : 'text-zinc-700';
+  const textSub = isDark ? 'text-zinc-400' : 'text-zinc-600';
   const divider = isDark ? 'border-zinc-800' : 'border-zinc-100';
   const rowHover = isDark ? 'hover:bg-zinc-800/60' : 'hover:bg-zinc-50';
-  const tagBg = isDark ? 'bg-zinc-800 text-zinc-400' : 'bg-zinc-100 text-zinc-500';
+  const tagBg = isDark ? 'bg-zinc-800 text-zinc-300 border-zinc-700' : 'bg-zinc-100 text-zinc-800 border-zinc-200';
 
   return (
-    <div className={`rounded-xl border ${surface} overflow-hidden flex flex-col`}>
-      {/* Header */}
-      <div className={`px-5 py-4 border-b ${divider} flex items-center gap-2`}>
-        <div className="w-6 h-6 rounded-md bg-amber-500/10 flex items-center justify-center">
-          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+    <div className={`rounded-xl border ${surface} overflow-hidden flex flex-col justify-between h-full`}>
+      <div>
+        {/* Header */}
+        <div className={`px-5 py-4 border-b ${divider} flex items-center gap-3`}>
+          <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+          </div>
+          <div>
+            <h3 className={`text-base font-bold ${textPrimary}`}>AI Assistant Copilot</h3>
+            <p className={`text-xs font-medium ${textSub}`}>Powered by Gemini · GPT-4o · Groq</p>
+          </div>
         </div>
-        <div>
-          <h3 className={`text-sm font-semibold ${textPrimary}`}>AI Assistant</h3>
-          <p className={`text-xs ${textMuted}`}>Powered by Gemini · GPT-4o · Groq</p>
-        </div>
-      </div>
 
-      {/* Suggestions */}
-      <div className="flex-1 divide-y divide-zinc-800/40">
-        {suggestions.map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <motion.button
-              key={s.label}
-              initial={{ opacity: 0, x: 8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.25, delay: i * 0.08 }}
-              onClick={s.label.includes('volunteer') ? onVolunteerMatch : onLaunchAI}
-              className={`w-full px-5 py-3.5 flex items-center gap-3 text-left transition-colors cursor-pointer ${rowHover}`}
-            >
-              <div className={`p-1.5 rounded-md ${isDark ? 'bg-zinc-800' : 'bg-zinc-100'}`}>
-                <Icon className={`w-3.5 h-3.5 ${s.color}`} />
-              </div>
-              <span className={`text-xs flex-1 leading-relaxed ${textPrimary}`}>{s.label}</span>
-              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${tagBg}`}>
-                {s.tag}
-              </span>
-            </motion.button>
-          );
-        })}
+        {/* Suggestions */}
+        <div className="divide-y divide-zinc-800/40">
+          {suggestions.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <motion.button
+                key={s.label}
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, delay: i * 0.08 }}
+                onClick={s.label.includes('volunteer') ? onVolunteerMatch : onLaunchAI}
+                className={`w-full px-5 py-4 flex items-center gap-3 text-left transition-colors cursor-pointer ${rowHover}`}
+              >
+                <div className={`p-2 rounded-lg flex-shrink-0 ${isDark ? 'bg-zinc-800' : 'bg-zinc-100'}`}>
+                  <Icon className={`w-4 h-4 ${s.color}`} />
+                </div>
+                <span className={`text-sm font-semibold flex-1 leading-snug ${textPrimary}`}>{s.label}</span>
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full border flex-shrink-0 ${tagBg}`}>
+                  {s.tag}
+                </span>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
 
       {/* CTA */}
       <div className={`px-5 py-4 border-t ${divider}`}>
         <motion.button
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           onClick={onLaunchAI}
-          className="w-full py-2.5 rounded-lg bg-amber-500 text-zinc-950 text-xs font-semibold flex items-center justify-center gap-2 hover:bg-amber-400 transition-colors cursor-pointer"
+          className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-amber-500/20"
         >
-          <Sparkles className="w-3.5 h-3.5" />
-          Open AI Studio
-          <ArrowRight className="w-3.5 h-3.5 ml-auto" />
+          <Sparkles className="w-4 h-4 text-zinc-950" />
+          Open AI Studio & Copilot
+          <ArrowRight className="w-4 h-4 ml-auto" />
         </motion.button>
       </div>
     </div>
