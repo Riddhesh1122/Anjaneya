@@ -32,8 +32,9 @@ const NAV_GROUPS = [
   {
     label: 'Platform',
     items: [
-      { key: 'users',      label: 'Users',        icon: Users      },
-      { key: 'settings',   label: 'Settings',     icon: Settings   },
+      { key: 'notifications', label: 'Notifications', icon: Bell },
+      { key: 'users',         label: 'Users',         icon: Users      },
+      { key: 'settings',      label: 'Settings',      icon: Settings   },
     ],
   },
 ];

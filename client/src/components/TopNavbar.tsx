@@ -54,10 +54,11 @@ export default function TopNavbar({
   const dropHov = isDark ? 'hover:bg-zinc-800' : 'hover:bg-zinc-100';
 
   const notifications = [
-    { id: 1, text: 'AI matched 3 volunteers for Hackathon', time: '2 min ago', dot: 'bg-amber-500' },
-    { id: 2, text: 'Low registration: Cyber Security Event', time: '15 min ago', dot: 'bg-rose-500' },
-    { id: 3, text: 'AI certificate batch generated', time: '1 hr ago', dot: 'bg-emerald-500' },
+    { id: 1, text: 'AI matched 3 volunteers for Hackathon', time: '2 min ago', dot: 'bg-amber-500', unread: true },
+    { id: 2, text: 'Low registration: Cyber Security Event', time: '15 min ago', dot: 'bg-rose-500', unread: true },
+    { id: 3, text: 'AI certificate batch generated', time: '1 hr ago', dot: 'bg-emerald-500', unread: false },
   ];
+  const unreadCount = notifications.filter(n => n.unread).length;
 
   const roles = [
     { id: 'attendee',  name: 'Attendee',     icon: Calendar,  color: 'text-amber-500'   },

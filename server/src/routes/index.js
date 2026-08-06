@@ -9,6 +9,7 @@ const adminRoutes = require('./admin.routes');
 const volunteerRoutes = require('./volunteer.routes');
 const taskRoutes = require('./task.routes');
 const aiRoutes = require('./ai.routes');
+const notificationRoutes = require('./notification.routes');
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use('/admin', adminRoutes);
 router.use('/volunteers', volunteerRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/ai', aiRoutes);
+router.use('/notifications', notificationRoutes);
 
 module.exports = router;
