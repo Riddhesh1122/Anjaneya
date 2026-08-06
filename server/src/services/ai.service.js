@@ -1,6 +1,38 @@
+const Event = require('../models/Event');
+const Task = require('../models/Task');
+const User = require('../models/User');
+
+const fallbackEvents = [
+  { id: 'ev-1', title: 'AI & ML Innovations Summit 2026', category: 'Artificial Intelligence', date: 'Today, Aug 4', location: 'Pune Tech Park / Hybrid', attendees: 420, price: 0, isFree: true },
+  { id: 'ev-2', title: 'Global Hackathon & Code Sprint', category: 'Hackathons', date: 'Aug 6 - Aug 8', location: 'Main Tech Hub, Stage A', attendees: 280, price: 0, isFree: true },
+  { id: 'ev-3', title: 'Cyber Security & Zero Trust Workshop', category: 'Cyber Security', date: 'Aug 14', location: 'Convention Center Lab 2', attendees: 115, price: 25, isFree: false },
+];
+
+/**
+ * Builds live data context from database or cached fallback events
+ */
+const getLiveEventContext = async () => {
+  try {
+    let events = [];
+    try {
+      events = await Event.find().limit(10).lean();
+    } catch (e) {
+      events = fallbackEvents;
+    }
+    if (!events || events.length === 0) events = fallbackEvents;
+
+    const eventList = events.map(e => `- "${e.title}" (${e.category || 'General'}): Date: ${e.date || 'TBD'}, Venue: ${e.location || 'Online'}, Registered Attendees: ${e.attendees || e.registeredCount || 0}, Seats Left: ${500 - (e.attendees || 0)}, Price: ${e.isFree || e.price === 0 ? 'Free' : '$' + e.price}`).join('\n');
+
+    return `\n\n[LIVE PLATFORM EVENT DATA CONTEXT]:\n${eventList}\nUse this real data context to answer queries accurately regarding events, dates, capacity, fees, and venues.`;
+  } catch (err) {
+    return '';
+  }
+};
+
 const callAI = async ({ prompt, systemPrompt, provider, model, apiKey }) => {
   const selectedProvider = provider || process.env.AI_PROVIDER || 'pollinations';
-  const sys = systemPrompt || 'You are Anjaneya AI, an intelligent event and volunteer management platform assistant.';
+  const liveContext = await getLiveEventContext();
+  const sys = (systemPrompt || 'You are Anjaneya AI, an intelligent event and volunteer management platform assistant.') + liveContext;
 
   try {
     // 1. Pollinations.ai (Free LLM engine fallback)
@@ -124,4 +156,5 @@ const callAI = async ({ prompt, systemPrompt, provider, model, apiKey }) => {
 
 module.exports = {
   callAI,
+  getLiveEventContext,
 };

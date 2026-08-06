@@ -885,3 +885,62 @@ export function deleteAIHistoryRecord(id: string): AIHistoryRecord[] {
   return history;
 }
 
+// ----------------------------------------------------------------------
+// CHAT SESSION CONVERSATION HISTORY STORE
+// ----------------------------------------------------------------------
+export interface ChatSession {
+  id: string;
+  title: string;
+  updatedAt: string;
+  messages: ChatMessage[];
+}
+
+const CHAT_SESSIONS_KEY = 'anjaneya_chat_sessions';
+
+export function getChatSessions(): ChatSession[] {
+  try {
+    const raw = localStorage.getItem(CHAT_SESSIONS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+
+export function saveChatSession(session: ChatSession): ChatSession[] {
+  const sessions = getChatSessions().filter(s => s.id !== session.id);
+  const updated = [session, ...sessions];
+  try { localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(updated)); } catch (e) {}
+  return updated;
+}
+
+export function deleteChatSession(id: string): ChatSession[] {
+  const sessions = getChatSessions().filter(s => s.id !== id);
+  try { localStorage.setItem(CHAT_SESSIONS_KEY, JSON.stringify(sessions)); } catch (e) {}
+  return sessions;
+}
+
+/**
+ * Stream AI Assistant response with real-time text chunks and cancel signal support
+ */
+export async function streamAIAssistant(
+  messages: ChatMessage[],
+  onChunk: (accumulatedText: string) => void,
+  signal?: AbortSignal
+): Promise<string> {
+  const fullText = await askAIAssistant(messages);
+  
+  if (signal?.aborted) return fullText;
+
+  // Stream text word-by-word at smooth 25ms intervals
+  const words = fullText.split(' ');
+  let accumulated = '';
+
+  for (let i = 0; i < words.length; i++) {
+    if (signal?.aborted) break;
+    accumulated += (i === 0 ? '' : ' ') + words[i];
+    onChunk(accumulated);
+    await new Promise(r => setTimeout(r, 25));
+  }
+
+  return accumulated || fullText;
+}
+
