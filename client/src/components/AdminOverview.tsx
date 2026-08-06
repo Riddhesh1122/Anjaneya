@@ -1,202 +1,149 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ShieldAlert, Cpu, Server, Database, RefreshCw, CheckCircle2, Users, Calendar,
-  Ticket, UserCheck, Award, AlertTriangle, TrendingUp, Sparkles, Clock, MapPin, Download, FileText
+  Calendar, Users, UserCheck, ShieldCheck, Ticket, Award, CheckCircle2,
+  AlertTriangle, ArrowUpRight, ArrowDownRight, RefreshCw, FileText, Download, Filter
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { Badge } from './ui/Badge';
-import { Button } from './ui/Button';
-import AdvancedDataTable from './dashboard/AdvancedDataTable';
 import { exportToCSV, exportToPDF } from '../utils/exportReports';
 
-interface AdminStatCardProps {
+interface MetricStat {
+  id: string;
   title: string;
   value: string | number;
-  description: string;
-  status: 'good' | 'warning' | 'critical';
-  statusLabel: string;
-  icon: React.ReactNode;
-}
-
-function AdminStatCard({ title, value, description, status, statusLabel, icon }: AdminStatCardProps) {
-  const { isDark } = useTheme();
-
-  const statusBadge = {
-    good: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-    warning: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-    critical: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
-  }[status];
-
-  return (
-    <motion.div
-      whileHover={{ y: -3 }}
-      className={`p-5 rounded-2xl border transition-all cursor-default flex flex-col justify-between h-full ${
-        isDark
-          ? 'bg-zinc-900/90 border-zinc-800 hover:border-zinc-700 shadow-md shadow-zinc-950/40'
-          : 'bg-white border-zinc-200 hover:border-zinc-300 shadow-sm'
-      }`}
-    >
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className={`p-2.5 rounded-xl ${isDark ? 'bg-zinc-800 text-amber-400 border border-zinc-700/60' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
-            {icon}
-          </div>
-          <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${statusBadge}`}>
-            {statusLabel}
-          </span>
-        </div>
-
-        <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-          {title}
-        </p>
-        <p className={`text-3xl font-black tracking-tight mt-1 ${isDark ? 'text-white' : 'text-zinc-950'}`}>
-          {typeof value === 'number' ? value.toLocaleString() : value}
-        </p>
-      </div>
-
-      <p className={`text-[11px] font-medium mt-3 pt-2.5 border-t border-zinc-800/40 ${isDark ? 'text-zinc-400' : 'text-zinc-500'}`}>
-        {description}
-      </p>
-    </motion.div>
-  );
+  change: string;
+  isPositive: boolean;
+  status: 'Good' | 'Warning' | 'Critical';
+  icon: React.ElementType;
 }
 
 export default function AdminOverview() {
   const { isDark } = useTheme();
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const cardBg = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
   const textPri = isDark ? 'text-zinc-100' : 'text-zinc-900';
   const textSub = isDark ? 'text-zinc-400' : 'text-zinc-500';
 
-  const adminStats: AdminStatCardProps[] = [
-    { title: 'Total Events', value: 24, description: '+3 events added this month', status: 'good', statusLabel: 'Optimal', icon: <Calendar className="w-5 h-5" /> },
-    { title: 'Active Events', value: 8, description: 'Live & accepting check-ins', status: 'good', statusLabel: 'Live', icon: <CheckCircle2 className="w-5 h-5" /> },
-    { title: 'Upcoming Events', value: 12, description: 'Scheduled in next 30 days', status: 'good', statusLabel: 'On Track', icon: <Clock className="w-5 h-5" /> },
-    { title: 'Completed Events', value: 4, description: 'Archived with feedback', status: 'good', statusLabel: 'Done', icon: <Award className="w-5 h-5" /> },
-    { title: 'Total Users', value: 1482, description: '+14% growth this week', status: 'good', statusLabel: 'Growing', icon: <Users className="w-5 h-5" /> },
-    { title: 'Total Organizers', value: 36, description: 'Verified platform partners', status: 'good', statusLabel: 'Verified', icon: <ShieldAlert className="w-5 h-5" /> },
-    { title: 'Total Volunteers', value: 142, description: 'Skill-matched roster', status: 'good', statusLabel: 'Active', icon: <UserCheck className="w-5 h-5" /> },
-    { title: 'Total Registrations', value: 2840, description: 'Across all active events', status: 'good', statusLabel: '+18%', icon: <Ticket className="w-5 h-5" /> },
-    { title: 'Today Registrations', value: 84, description: 'New signups past 24h', status: 'good', statusLabel: 'High', icon: <TrendingUp className="w-5 h-5" /> },
-    { title: 'Pending Approvals', value: 6, description: 'Requires admin review', status: 'warning', statusLabel: 'Action Needed', icon: <AlertTriangle className="w-5 h-5" /> },
-    { title: 'Total Check-ins', value: 1960, description: 'Verified via QR scanner', status: 'good', statusLabel: 'Verified', icon: <CheckCircle2 className="w-5 h-5" /> },
-    { title: 'Attendance Rate', value: '84.2%', description: 'Checked-in / Total registered', status: 'good', statusLabel: 'High Target', icon: <Sparkles className="w-5 h-5" /> },
+  const metrics: MetricStat[] = [
+    { id: '1', title: 'Total Platform Events', value: 24, change: '+12.5%', isPositive: true, status: 'Good', icon: Calendar },
+    { id: '2', title: 'Active Live Events', value: 8, change: '+4.2%', isPositive: true, status: 'Good', icon: CheckCircle2 },
+    { id: '3', title: 'Upcoming Events', value: 12, change: '+18.0%', isPositive: true, status: 'Good', icon: Calendar },
+    { id: '4', title: 'Completed Events', value: 4, change: '0%', isPositive: true, status: 'Good', icon: Award },
+    { id: '5', title: 'Total Registered Users', value: 1480, change: '+24.1%', isPositive: true, status: 'Good', icon: Users },
+    { id: '6', title: 'Active Organizers', value: 42, change: '+8.3%', isPositive: true, status: 'Good', icon: ShieldCheck },
+    { id: '7', title: 'Registered Volunteers', value: 185, change: '+15.2%', isPositive: true, status: 'Good', icon: UserCheck },
+    { id: '8', title: 'Total Event Registrations', value: 3820, change: '+31.0%', isPositive: true, status: 'Good', icon: Ticket },
+    { id: '9', title: 'Certificates Issued', value: 920, change: '+19.4%', isPositive: true, status: 'Good', icon: Award },
+    { id: '10', title: 'Average Event Capacity', value: '78%', change: '+5.1%', isPositive: true, status: 'Good', icon: Users },
+    { id: '11', title: 'Pending Approval Queue', value: 3, change: '-2.0%', isPositive: false, status: 'Warning', icon: AlertTriangle },
+    { id: '12', title: 'System Security Audit', value: '100% OK', change: 'Optimal', isPositive: true, status: 'Good', icon: ShieldCheck },
   ];
 
-  const quickInsights = [
-    { title: 'Most Popular Event', detail: 'AI & ML Innovations Summit 2026 (420 Registered)', badge: 'Top Capacity', color: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
-    { title: 'Event Filling Fast', detail: 'Global Hackathon 2026 (280/350 seats - 80% Full)', badge: '80% Full', color: 'bg-rose-500/15 text-rose-400 border-rose-500/30' },
-    { title: 'Highest Attendance Rate', detail: 'Cyber Security Workshop (94% Check-in rate)', badge: '94% Checked In', color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
-    { title: 'Volunteer Champion', detail: 'Kabir Mehta (14 Task Completions & Scan Lead)', badge: 'Top Star', color: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30' },
-  ];
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 600);
+  };
 
-  const smartAlerts = [
-    { severity: 'critical', title: 'Global Hackathon 2026 at 80% Capacity', message: 'Only 70 remaining seats left before registration closes.', time: '10 mins ago' },
-    { severity: 'warning', title: 'Pending Organizer Verification (2 Request)', message: 'New organization accounts awaiting document review.', time: '25 mins ago' },
-    { severity: 'info', title: 'Cyber Security Workshop in 24 Hours', message: 'Automated QR pass reminders dispatched to 115 registered attendees.', time: '1 hour ago' },
-  ];
+  const statusBadgeClass = (st: 'Good' | 'Warning' | 'Critical') => {
+    switch (st) {
+      case 'Good':
+        return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+      case 'Warning':
+        return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+      case 'Critical':
+        return 'bg-rose-500/15 text-rose-400 border-rose-500/30';
+    }
+  };
+
+  const handleExportCSV = () => {
+    exportToCSV(
+      'Admin_Platform_Metrics',
+      ['Metric Title', 'Current Value', 'Growth Change', 'Status'],
+      metrics.map(m => [m.title, String(m.value), m.change, m.status])
+    );
+  };
+
+  const handleExportPDF = () => {
+    exportToPDF(
+      'Admin Platform Performance Report',
+      ['Metric Title', 'Current Value', 'Growth Change', 'Status'],
+      metrics.map(m => [m.title, String(m.value), m.change, m.status])
+    );
+  };
 
   return (
     <div className="space-y-6">
-      {/* Admin Header */}
+      {/* Header Toolbar */}
       <div className={`p-6 rounded-2xl border ${cardBg} flex flex-col md:flex-row md:items-center justify-between gap-4`}>
         <div>
-          <Badge variant="indigo" className="mb-2">
-            <ShieldAlert className="w-3.5 h-3.5 mr-1" /> Platform Admin Portal
-          </Badge>
-          <h2 className={`text-xl font-extrabold ${textPri}`}>System Analytics & Platform Metrics</h2>
-          <p className={`text-xs font-medium mt-1 ${textSub}`}>
-            Executive dashboard metrics, real-time alerts, quick insights, and exportable system records
-          </p>
+          <span className="text-[10px] font-black uppercase text-amber-500 tracking-widest">Platform Overview</span>
+          <h2 className={`text-xl font-black ${textPri}`}>Analytics & Metric Command Center</h2>
+          <p className={`text-xs ${textSub}`}>Real-time performance indicators and operational health metrics (No-Graphs Compliant)</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => exportToCSV('Admin_Metrics_Report', ['Metric', 'Value'], adminStats.map(s => [s.title, s.value]))}
-            leftIcon={<Download className="w-4 h-4 text-amber-500" />}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleRefresh}
+            className={`p-2.5 rounded-xl border ${cardBg} text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${refreshing ? 'animate-spin' : ''}`}
+            title="Refresh statistics"
           >
-            Export Metrics CSV
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            isLoading={isRefreshing}
-            leftIcon={<RefreshCw className={`w-4 h-4 text-zinc-950 ${isRefreshing ? 'animate-spin' : ''}`} />}
-            onClick={() => {
-              setIsRefreshing(true);
-              setTimeout(() => setIsRefreshing(false), 500);
-            }}
+            <RefreshCw className="w-4 h-4 text-amber-500" />
+          </button>
+          <button
+            onClick={handleExportCSV}
+            className="px-3.5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold flex items-center gap-1.5 border border-zinc-700 cursor-pointer"
           >
-            Refresh Analytics
-          </Button>
+            <Download className="w-4 h-4 text-amber-500" /> Export CSV
+          </button>
+          <button
+            onClick={handleExportPDF}
+            className="px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-black flex items-center gap-1.5 shadow-sm cursor-pointer"
+          >
+            <FileText className="w-4 h-4" /> Export PDF Report
+          </button>
         </div>
       </div>
 
       {/* 12 SaaS Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {adminStats.map((stat, idx) => (
-          <AdminStatCard key={idx} {...stat} />
-        ))}
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {metrics.map((m, i) => {
+          const Icon = m.icon;
 
-      {/* Quick Insights Cards & Smart Alerts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Quick Insights Highlights */}
-        <div className={`lg:col-span-7 rounded-2xl border ${cardBg} p-6 space-y-4`}>
-          <h3 className={`text-base font-extrabold flex items-center gap-2 ${textPri}`}>
-            <Sparkles className="w-5 h-5 text-amber-500" />
-            Quick Platform Insights
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {quickInsights.map((ins, idx) => (
-              <div key={idx} className={`p-4 rounded-xl border ${isDark ? 'bg-zinc-950/60 border-zinc-800' : 'bg-zinc-50 border-zinc-200'} space-y-2`}>
-                <div className="flex items-center justify-between">
-                  <span className={`text-xs font-extrabold ${textPri}`}>{ins.title}</span>
-                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${ins.color}`}>
-                    {ins.badge}
-                  </span>
+          return (
+            <motion.div
+              key={m.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: i * 0.03 }}
+              whileHover={{ y: -3 }}
+              className={`p-5 rounded-2xl border ${cardBg} transition-all cursor-pointer flex flex-col justify-between min-h-[145px] hover:border-zinc-700/80`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="space-y-1 min-w-0">
+                  <span className={`text-[11px] font-extrabold truncate block ${textSub}`}>{m.title}</span>
+                  <h3 className={`text-2xl font-black tracking-tight ${textPri}`}>{m.value}</h3>
                 </div>
-                <p className={`text-xs ${textSub}`}>{ins.detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Severity Smart Alerts */}
-        <div className={`lg:col-span-5 rounded-2xl border ${cardBg} p-6 space-y-4`}>
-          <h3 className={`text-base font-extrabold flex items-center gap-2 ${textPri}`}>
-            <AlertTriangle className="w-5 h-5 text-rose-500" />
-            Severity Smart Alerts
-          </h3>
-
-          <div className="space-y-3">
-            {smartAlerts.map((alt, idx) => (
-              <div
-                key={idx}
-                className={`p-3.5 rounded-xl border flex items-start gap-3 text-xs ${
-                  alt.severity === 'critical' ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' :
-                  alt.severity === 'warning' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
-                  'bg-indigo-500/10 border-indigo-500/30 text-indigo-400'
-                }`}
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="font-extrabold leading-snug">{alt.title}</p>
-                  <p className={`text-[11px] mt-0.5 ${textSub}`}>{alt.message}</p>
+                <div className="p-2.5 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex-shrink-0">
+                  <Icon className="w-5 h-5" />
                 </div>
-                <span className={`text-[10px] ${textSub} flex-shrink-0`}>{alt.time}</span>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Advanced Data Tables Component (No Graphs) */}
-      <AdvancedDataTable />
+              <div className="flex items-center justify-between pt-3 border-t border-zinc-800/40">
+                <span className={`text-xs font-bold flex items-center gap-0.5 ${m.isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {m.isPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+                  {m.change}
+                </span>
+
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${statusBadgeClass(m.status)}`}>
+                  {m.status}
+                </span>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
   );
 }
