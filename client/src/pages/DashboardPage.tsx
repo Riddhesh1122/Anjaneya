@@ -58,6 +58,7 @@ import AdminOverview from '../components/AdminOverview';
 import QRScannerPage from './QRScannerPage';
 import NotificationCenterPage from './NotificationCenterPage';
 import TeamDashboardPage from './TeamDashboardPage';
+import EventDiscoveryHub from '../components/dashboard/EventDiscoveryHub';
 
 // AI Components
 import FloatingAIButton from '../components/ai/FloatingAIButton';
@@ -410,10 +411,6 @@ export default function DashboardPage() {
 
   // 2. EVENTS PAGE
   const renderEvents = () => {
-    const textPri = isDark ? 'text-zinc-100' : 'text-zinc-900';
-    const textMut = isDark ? 'text-zinc-400' : 'text-zinc-500';
-    const cardBg = isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm';
-
     return (
       <motion.div
         key="events"
@@ -421,124 +418,12 @@ export default function DashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -16 }}
         transition={{ duration: 0.25 }}
-        className="space-y-5"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className={`text-2xl font-bold ${textPri}`}>Event Hub</h1>
-            <p className={`text-sm font-medium mt-0.5 ${textMut}`}>Manage, publish, search, and generate events using AI</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEventsMinimized(!isEventsMinimized)}
-            >
-              {isEventsMinimized ? 'Expand Events' : 'Minimize Events'}
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              leftIcon={<Plus className="w-4 h-4 text-zinc-950" />}
-              onClick={() => setGeneratorModalMode('event')}
-            >
-              Create New Event
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={<Sparkles className="w-4 h-4 text-amber-500" />}
-              onClick={() => setGeneratorModalMode('event')}
-            >
-              Generate with AI
-            </Button>
-          </div>
-        </div>
-
-        {searchQuery && (
-          <div className={`p-3 rounded-xl border flex items-center justify-between text-xs font-semibold ${isDark ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
-            <span>🔍 Showing AI Smart Search results for: <strong>"{searchQuery}"</strong> ({filteredEvents.length} found)</span>
-            <button onClick={() => setSearchQuery('')} className="font-semibold underline cursor-pointer">Clear Filter</button>
-          </div>
-        )}
-
-        {isLoadingEvents ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <CardSkeleton />
-            <CardSkeleton />
-            <CardSkeleton />
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <EmptyState
-            icon={<Calendar className="w-6 h-6 text-amber-500" />}
-            title="No events found"
-            description={searchQuery ? `No events matched your search query "${searchQuery}".` : "You haven't created any events yet."}
-            actionLabel="+ Create New Event"
-            onAction={() => setGeneratorModalMode('event')}
-          />
-        ) : (
-          <AnimatePresence>
-            {!isEventsMinimized && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Create New Event Card */}
-                  <motion.div
-                    whileHover={{ y: -3 }}
-                    onClick={() => setGeneratorModalMode('event')}
-                    className={`p-6 rounded-xl border-2 border-dashed ${
-                      isDark ? 'border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10' : 'border-amber-500/50 bg-amber-50/50 hover:bg-amber-50'
-                    } flex flex-col items-center justify-center text-center cursor-pointer transition-all min-h-[220px] group`}
-                  >
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center text-zinc-950 mb-3 shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform">
-                      <Plus className="w-6 h-6 stroke-[3]" />
-                    </div>
-                    <h3 className={`text-base font-bold mb-1 ${textPri} group-hover:text-amber-500 transition-colors`}>Create New Event</h3>
-                    <p className={`text-xs max-w-xs leading-relaxed ${textMut}`}>Launch AI event creator to auto-generate title, agenda, rules & FAQs.</p>
-                  </motion.div>
-
-                  {filteredEvents.map((ev) => (
-                    <motion.div
-                      key={ev.id}
-                      whileHover={{ y: -3 }}
-                      className={`p-5 rounded-xl border ${cardBg} flex flex-col justify-between transition-all group`}
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge variant="amber">{ev.category}</Badge>
-                          <span className="text-xs text-emerald-500 font-bold">{ev.isFree ? 'Free Pass' : `$${ev.price}`}</span>
-                        </div>
-                        <h3 className={`text-base font-bold mb-1 group-hover:text-amber-500 transition-colors ${textPri}`}>{ev.title}</h3>
-                        <p className={`text-xs mb-4 line-clamp-2 leading-relaxed ${textMut}`}>{ev.description}</p>
-                      </div>
-
-                      <div className={`space-y-3 pt-3 border-t ${isDark ? 'border-zinc-800' : 'border-zinc-100'}`}>
-                        <div className={`flex items-center justify-between text-xs font-medium ${textMut}`}>
-                          <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-amber-500" /> {ev.date}</span>
-                          <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-indigo-400" /> {ev.location}</span>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button variant="outline" size="sm" onClick={() => setDetailsModalEvent(ev)}>
-                            Details
-                          </Button>
-                          <Button variant="primary" size="sm" onClick={() => setQrModalEvent(ev)} leftIcon={<QrCode className="w-3.5 h-3.5" />}>
-                            QR Pass
-                          </Button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        )}
+        <EventDiscoveryHub
+          events={filteredEvents}
+          onViewDetails={ev => setDetailsModalEvent(ev)}
+          onGetQR={ev => setQrModalEvent(ev)}
+        />
       </motion.div>
     );
   };
