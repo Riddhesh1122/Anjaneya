@@ -10,6 +10,7 @@ const volunteerRoutes = require('./volunteer.routes');
 const taskRoutes = require('./task.routes');
 const aiRoutes = require('./ai.routes');
 const notificationRoutes = require('./notification.routes');
+const teamRoutes = require('./team.routes');
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use('/volunteers', volunteerRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/ai', aiRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/teams', teamRoutes);
 
 module.exports = router;

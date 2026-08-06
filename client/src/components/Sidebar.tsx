@@ -17,6 +17,7 @@ const NAV_GROUPS = [
     items: [
       { key: 'home',       label: 'Dashboard',   icon: Home       },
       { key: 'events',     label: 'Events',       icon: Calendar   },
+      { key: 'teams',      label: 'Team Hub',     icon: Users      },
       { key: 'volunteers', label: 'Volunteers',   icon: UserCheck  },
       { key: 'tasks',      label: 'Tasks',        icon: CheckSquare },
       { key: 'scanner',    label: 'QR Scanner',   icon: QrCode     },

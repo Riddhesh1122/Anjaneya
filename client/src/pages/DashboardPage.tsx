@@ -57,6 +57,7 @@ import AdminOverview from '../components/AdminOverview';
 // Specialized Pages
 import QRScannerPage from './QRScannerPage';
 import NotificationCenterPage from './NotificationCenterPage';
+import TeamDashboardPage from './TeamDashboardPage';
 
 // AI Components
 import FloatingAIButton from '../components/ai/FloatingAIButton';
@@ -834,6 +835,7 @@ export default function DashboardPage() {
       return renderHome();
     },
     events: renderEvents,
+    teams: () => <TeamDashboardPage />,
     volunteers: renderVolunteers,
     tasks: renderTasks,
     scanner: () => <QRScannerPage />,
