@@ -59,6 +59,8 @@ import QRScannerPage from './QRScannerPage';
 import NotificationCenterPage from './NotificationCenterPage';
 import TeamDashboardPage from './TeamDashboardPage';
 import EventDiscoveryHub from '../components/dashboard/EventDiscoveryHub';
+import SettingsPage from './SettingsPage';
+import AuditLogsPage from './AuditLogsPage';
 
 // AI Components
 import FloatingAIButton from '../components/ai/FloatingAIButton';
@@ -725,10 +727,11 @@ export default function DashboardPage() {
     tasks: renderTasks,
     scanner: () => <QRScannerPage />,
     notifications: () => <NotificationCenterPage />,
+    audit: () => <AuditLogsPage />,
     analytics: renderAnalytics,
     'ai-studio': renderAIStudio,
     users: renderUsers,
-    settings: renderSettings,
+    settings: () => <SettingsPage />,
   };
 
   return (
